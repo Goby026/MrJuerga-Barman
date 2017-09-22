@@ -103,7 +103,7 @@ public class DropXlsx implements DropTargetListener {
      *
      * @param file Archivo excel
      */
-    private void readXLSX(File file) {        
+    private void readXLSX(File file) {
         tableModel = new DefaultTableModel();
         try {
             XSSFWorkbook wb = new XSSFWorkbook(new FileInputStream(file));
@@ -129,7 +129,7 @@ public class DropXlsx implements DropTargetListener {
                 Iterator<Row> rowIterator = sheet.iterator();
                 while (rowIterator.hasNext()) {
 
-                    int index = 0;
+                    int index = 0;//----------estaba en 0
                     row = rowIterator.next();
 
                     Object[] obj = new Object[row.getLastCellNum()];

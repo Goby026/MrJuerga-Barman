@@ -225,7 +225,7 @@ public class RequerimientoBarmanControl implements KeyListener, MouseListener, W
                 r.setFecha(new ManejadorFechas().getFechaActualMySQL());
                 r.setHora(new ManejadorFechas().getHoraActual());
                 r.setObservacion(vrb.txaObservaciones.getText());
-                r.setEstado(0);
+                r.setEstado(0);//pendiente
 
                 RequerimientoDAO rdao = new RequerimientoDAO();
                 if (rdao.Registrar(r)) {

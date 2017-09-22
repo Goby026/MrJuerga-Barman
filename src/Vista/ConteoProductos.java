@@ -6,6 +6,26 @@
 package Vista;
 
 import Controlador.DropXlsx;
+import Controlador.ManejadorFechas;
+import Modelo.Almacen;
+import Modelo.Conteo;
+import Modelo.ConteoProducto;
+import Modelo.Medida;
+import Modelo.MySQLDAO.AlmacenDAO;
+import Modelo.MySQLDAO.Conexion;
+import Modelo.MySQLDAO.ConteoDAO;
+import Modelo.MySQLDAO.ConteoProductoDAO;
+import Modelo.MySQLDAO.MedidaDAO;
+import Modelo.MySQLDAO.PresentacionDAO;
+import Modelo.MySQLDAO.UsuarioDAO;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.swing.JOptionPane;
+import javax.swing.JTable;
+import javax.swing.table.DefaultTableModel;
 
 /**
  *
@@ -14,21 +34,37 @@ import Controlador.DropXlsx;
 public class ConteoProductos extends javax.swing.JFrame {
 
     String usuario;
-    
+    DefaultTableModel modelo;
+    ManejadorFechas mf = null;
+
     public ConteoProductos(String user) {
         initComponents();
         setLocationRelativeTo(null);
-        
+
         this.usuario = user;
         lblUsuario.setText(usuario);
-        
+
         DropXlsx dropXlsx = new DropXlsx();
         dropXlsx.setJtable(tblConteo);
+        titulos();
+        cargarComboAlmacen();
+        lblFecha.setText(mf.getFechaActual());
     }
 
     public ConteoProductos() {
     }
-    
+
+    private void cargarComboAlmacen() {
+        try {
+            AlmacenDAO adao = new AlmacenDAO();
+            for (Almacen a : adao.listar()) {
+                cmbAlmacen.addItem(a);
+            }
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(getRootPane(), "ERROR: " + e.getMessage());
+        }
+    }
+
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -43,12 +79,25 @@ public class ConteoProductos extends javax.swing.JFrame {
         jLabel1 = new javax.swing.JLabel();
         lblUsuario = new javax.swing.JLabel();
         lblFecha = new javax.swing.JLabel();
-        lblHora = new javax.swing.JLabel();
         btnVolver = new javax.swing.JButton();
+        btnGuardar = new javax.swing.JButton();
+        cmbAlmacen = new javax.swing.JComboBox<>();
+        btnMostrar = new javax.swing.JButton();
+        jSeparator1 = new javax.swing.JSeparator();
+        jLabel2 = new javax.swing.JLabel();
+        txtProducto = new javax.swing.JTextField();
+        jLabel3 = new javax.swing.JLabel();
+        txtCantidad = new javax.swing.JTextField();
+        btnOk = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         getContentPane().setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
+        tblConteo = new javax.swing.JTable(){
+            public boolean isCellEditable(int rowIndex, int colIndex){
+                return false;
+            }
+        };
         tblConteo.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
                 {null, null, null, null},
@@ -60,26 +109,29 @@ public class ConteoProductos extends javax.swing.JFrame {
                 "Title 1", "Title 2", "Title 3", "Title 4"
             }
         ));
+        tblConteo.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                tblConteoMouseClicked(evt);
+            }
+        });
         jScrollPane1.setViewportView(tblConteo);
 
-        getContentPane().add(jScrollPane1, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 100, 1110, 570));
+        getContentPane().add(jScrollPane1, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 100, 720, 440));
 
         jLabel1.setFont(new java.awt.Font("Tahoma", 0, 24)); // NOI18N
         jLabel1.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         jLabel1.setText("LISTA DE PRODUCTOS CONTABILIZADOS - BARMAN");
-        getContentPane().add(jLabel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 60, 1110, -1));
+        getContentPane().add(jLabel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 10, 740, -1));
 
         lblUsuario.setFont(new java.awt.Font("Arial", 0, 14)); // NOI18N
+        lblUsuario.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
         lblUsuario.setText("user");
-        getContentPane().add(lblUsuario, new org.netbeans.lib.awtextra.AbsoluteConstraints(570, 20, 170, -1));
+        getContentPane().add(lblUsuario, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 670, 140, 30));
 
         lblFecha.setFont(new java.awt.Font("Arial", 0, 14)); // NOI18N
+        lblFecha.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
         lblFecha.setText("date");
-        getContentPane().add(lblFecha, new org.netbeans.lib.awtextra.AbsoluteConstraints(760, 20, 170, -1));
-
-        lblHora.setFont(new java.awt.Font("Arial", 0, 14)); // NOI18N
-        lblHora.setText("time");
-        getContentPane().add(lblHora, new org.netbeans.lib.awtextra.AbsoluteConstraints(940, 20, 170, -1));
+        getContentPane().add(lblFecha, new org.netbeans.lib.awtextra.AbsoluteConstraints(160, 670, 140, 30));
 
         btnVolver.setBackground(new java.awt.Color(102, 102, 102));
         btnVolver.setFont(new java.awt.Font("Microsoft Yi Baiti", 0, 18)); // NOI18N
@@ -90,7 +142,53 @@ public class ConteoProductos extends javax.swing.JFrame {
                 btnVolverActionPerformed(evt);
             }
         });
-        getContentPane().add(btnVolver, new org.netbeans.lib.awtextra.AbsoluteConstraints(920, 690, 190, 30));
+        getContentPane().add(btnVolver, new org.netbeans.lib.awtextra.AbsoluteConstraints(540, 670, 190, 30));
+
+        btnGuardar.setBackground(new java.awt.Color(255, 153, 153));
+        btnGuardar.setFont(new java.awt.Font("Microsoft Yi Baiti", 0, 18)); // NOI18N
+        btnGuardar.setForeground(new java.awt.Color(51, 51, 51));
+        btnGuardar.setText("GUARDAR");
+        btnGuardar.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnGuardarActionPerformed(evt);
+            }
+        });
+        getContentPane().add(btnGuardar, new org.netbeans.lib.awtextra.AbsoluteConstraints(540, 620, 190, 30));
+
+        getContentPane().add(cmbAlmacen, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 60, 280, -1));
+
+        btnMostrar.setText("MOSTRAR");
+        btnMostrar.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnMostrarActionPerformed(evt);
+            }
+        });
+        getContentPane().add(btnMostrar, new org.netbeans.lib.awtextra.AbsoluteConstraints(310, 60, 120, -1));
+        getContentPane().add(jSeparator1, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 660, 730, 10));
+
+        jLabel2.setText("PRODUCTO");
+        getContentPane().add(jLabel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 550, -1, 20));
+
+        txtProducto.setEditable(false);
+        getContentPane().add(txtProducto, new org.netbeans.lib.awtextra.AbsoluteConstraints(80, 550, 420, -1));
+
+        jLabel3.setText("CANTIDAD");
+        getContentPane().add(jLabel3, new org.netbeans.lib.awtextra.AbsoluteConstraints(510, 550, -1, 20));
+
+        txtCantidad.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                txtCantidadActionPerformed(evt);
+            }
+        });
+        getContentPane().add(txtCantidad, new org.netbeans.lib.awtextra.AbsoluteConstraints(580, 550, 80, -1));
+
+        btnOk.setText("OK");
+        btnOk.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnOkActionPerformed(evt);
+            }
+        });
+        getContentPane().add(btnOk, new org.netbeans.lib.awtextra.AbsoluteConstraints(670, 550, -1, -1));
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
@@ -104,6 +202,47 @@ public class ConteoProductos extends javax.swing.JFrame {
             System.out.println(ex.getMessage());
         }
     }//GEN-LAST:event_btnVolverActionPerformed
+
+    private void btnGuardarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnGuardarActionPerformed
+        guardarConteo();
+    }//GEN-LAST:event_btnGuardarActionPerformed
+
+    private void btnMostrarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnMostrarActionPerformed
+        LimpiarTabla(tblConteo, modelo);
+
+        Almacen a = (Almacen) cmbAlmacen.getSelectedItem();
+        try {
+            cargarTabla(a.getId(), "");
+        } catch (SQLException ex) {
+            Logger.getLogger(ConteoProductos.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }//GEN-LAST:event_btnMostrarActionPerformed
+
+    private void tblConteoMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tblConteoMouseClicked
+        int fila = tblConteo.getSelectedRow();
+        String producto = tblConteo.getValueAt(fila, 1).toString() + " - " + tblConteo.getValueAt(fila, 2).toString();
+        txtProducto.setText(producto);
+    }//GEN-LAST:event_tblConteoMouseClicked
+
+    private void btnOkActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnOkActionPerformed
+        int fila = tblConteo.getSelectedRow();
+        if (fila >= 0) {
+            tblConteo.setValueAt(txtCantidad.getText(), fila, 4);
+            limpiarCampos();
+        } else {
+            JOptionPane.showMessageDialog(getRootPane(), "SELECCIONE UN PRODUCTO");
+        }
+    }//GEN-LAST:event_btnOkActionPerformed
+
+    private void txtCantidadActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtCantidadActionPerformed
+        btnOk.doClick();
+    }//GEN-LAST:event_txtCantidadActionPerformed
+
+    private void limpiarCampos() {
+        tblConteo.clearSelection();
+        txtProducto.setText("");
+        txtCantidad.setText("");
+    }
 
     /**
      * @param args the command line arguments
@@ -141,12 +280,143 @@ public class ConteoProductos extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    public javax.swing.JButton btnGuardar;
+    private javax.swing.JButton btnMostrar;
+    private javax.swing.JButton btnOk;
     public javax.swing.JButton btnVolver;
+    private javax.swing.JComboBox<Almacen> cmbAlmacen;
     private javax.swing.JLabel jLabel1;
+    private javax.swing.JLabel jLabel2;
+    private javax.swing.JLabel jLabel3;
     private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JSeparator jSeparator1;
     private javax.swing.JLabel lblFecha;
-    private javax.swing.JLabel lblHora;
     private javax.swing.JLabel lblUsuario;
     private javax.swing.JTable tblConteo;
+    private javax.swing.JTextField txtCantidad;
+    private javax.swing.JTextField txtProducto;
     // End of variables declaration//GEN-END:variables
+
+    private void titulos() {
+        String titulos[] = {"COD", "PRODUCTO", "PRESENTACION", "MEDIDA", "CANTIDAD"};
+        modelo = new DefaultTableModel(null, titulos);
+        tblConteo.setModel(modelo);
+    }
+
+    private void cargarTabla(int idAlmacen, String nomProd) throws SQLException {
+        Conexion con = new Conexion();
+
+        try {
+            con.conectar();
+//            String sql = "SELECT productopresentacion.idproductopresentacion, producto.nombre,presentacion.descripcion \n"
+//                    + "FROM producto\n"
+//                    + "INNER JOIN productopresentacion ON producto.idproducto = productopresentacion.idproducto\n"
+//                    + "INNER JOIN categoria ON productopresentacion.idcategoria = categoria.idcategoria\n"
+//                    + "INNER JOIN presentacion ON productopresentacion.idpresentacion = presentacion.idpresentacion\n"
+//                    + "WHERE productopresentacion.idalmacen = " + idAlmacen + " AND producto.nombre LIKE '%" + nomProd + "%'";
+            String sql = "SELECT productopresentacion.idproductopresentacion, producto.nombre,presentacion.descripcion\n"
+                    + "FROM producto\n"
+                    + "INNER JOIN productopresentacion ON producto.idproducto = productopresentacion.idproducto\n"
+                    + "INNER JOIN categoria ON productopresentacion.idcategoria = categoria.idcategoria\n"
+                    + "INNER JOIN presentacion ON productopresentacion.idpresentacion = presentacion.idpresentacion\n"
+                    + "WHERE productopresentacion.idalmacen = " + idAlmacen + " AND producto.nombre LIKE '%" + nomProd + "%'\n"
+                    + "order by presentacion.descripcion desc";
+
+            PreparedStatement pst = con.getConexion().prepareStatement(sql);
+
+            ResultSet res = pst.executeQuery();
+
+            Object datos[] = new Object[5];
+
+            while (res.next()) {
+                datos[0] = res.getInt(1);
+                datos[1] = res.getString(2);
+                datos[2] = res.getString(3);
+                datos[3] = "UNIDAD";
+                datos[4] = 0;
+                modelo.addRow(datos);
+            }
+
+            tblConteo.setModel(modelo);
+            pst.close();
+            res.close();
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(getRootPane(), "ERROR: " + e);
+        } finally {
+            con.cerrar();
+        }
+    }
+
+    private boolean guardarConteo() {
+        try {
+
+            if (tblConteo.getRowCount() > 0) {
+                //validar si ya se realizo la cuenta
+                int opc = JOptionPane.showConfirmDialog(null, "¿DESEA GUARDAR LA LISTA?", "GUARDAR CONTEO " + new ManejadorFechas().getFechaActual(), JOptionPane.YES_NO_OPTION);
+                if (opc == 0) { //verdadero
+                    int contador = 0;
+                    try {
+                        //primero registrar el conteo
+                        Conteo c = new Conteo();
+                        UsuarioDAO udao = new UsuarioDAO();
+                        int idUsuario = udao.getIdUsuario(lblUsuario.getText());
+                        Almacen a = new AlmacenDAO().Obtener(cmbAlmacen.getSelectedItem().toString());
+                        c.setIdusuario(idUsuario);
+                        c.setIdAlmacen(a.getId());
+                        c.setFecha(new ManejadorFechas().getFechaActualMySQL());
+                        c.setHora(new ManejadorFechas().getHoraActual());
+
+                        ConteoDAO cdao = new ConteoDAO();
+
+                        if (cdao.Registrar(c)) {
+                            int idConteo = cdao.getLastId();
+                            Medida m = new MedidaDAO().Obtener(1);
+                            ConteoProductoDAO cpdao = new ConteoProductoDAO();
+                            for (int i = 0; i < tblConteo.getRowCount(); i++) {
+                                ConteoProducto cp = new ConteoProducto();
+                                cp.setIdconteo(idConteo);
+                                cp.setIdProductoPresentacion(Integer.parseInt(tblConteo.getValueAt(i, 0).toString()));
+                                cp.setIdPresentacion(new PresentacionDAO().getIdPresentacion(tblConteo.getValueAt(i, 2).toString()));
+                                cp.setMedida(m);
+                                cp.setStock(Integer.parseInt(tblConteo.getValueAt(i, 4).toString()));
+                                if (cpdao.Registrar(cp)) {
+                                    contador++;
+                                }
+                            }
+                        }
+
+                        if (contador > 0) {
+                            JOptionPane.showMessageDialog(getRootPane(), "SE REGISTRO EL CONTEO EXITOSAMENTE");
+//                            parametros.put("fecha", cd.lblFecha.getText());
+//                            mrv = new MyiReportVisor(System.getProperty("user.dir") + "\\reportes\\ConteoProductos.jrxml", parametros, new ColumnasTablas().getPageSize(cd.tblContados));
+//                            mrv.setNombreArchivo("Conteo" + cd.lblFecha.getText());
+//                            mrv.exportarAPdf();
+//                            mrv.dispose();
+                        }
+                    } catch (Exception ex) {
+                        System.out.println(ex.getMessage());
+                    }
+                } else {//falso
+                }
+            } else {
+                JOptionPane.showMessageDialog(getRootPane(), "NO SE PUEDE REGISTRAR UN CONTEO VACIO, INGRESE PRODUCTOS CONTADOS");
+            }
+
+            for (int i = 0; i < tblConteo.getRowCount(); i++) {
+
+            }
+
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(getRootPane(), "ERROR: " + e.getMessage());
+        }
+        return false;
+    }
+
+    private void LimpiarTabla(JTable tabla, DefaultTableModel modelo) {
+        for (int i = 0; i < tabla.getRowCount(); i++) {
+            modelo.removeRow(i);
+            i -= 1;
+        }
+    }
+
 }

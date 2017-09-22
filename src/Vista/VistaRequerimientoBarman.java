@@ -139,7 +139,7 @@ public class VistaRequerimientoBarman extends javax.swing.JFrame {
         jSeparator1 = new javax.swing.JSeparator();
         btnRecetas = new javax.swing.JButton();
 
-        setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
+        setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("COMPRAS PENDIENTES");
         getContentPane().setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 

@@ -106,4 +106,58 @@ public class AlmacenDAO extends Conexion{
         
         return lista;
     }
+    
+    public Almacen Obtener(int id) throws SQLException, Exception{
+        Almacen a = null;
+        try {
+            this.conectar();
+            PreparedStatement pst = this.conexion.prepareStatement("SELECT * FROM almacen WHERE idalmacen = ?");
+            pst.setInt(1, id);
+            ResultSet res = pst.executeQuery();
+            while (res.next()) {
+                a = new Almacen();
+                a.setId(res.getInt("idalmacen"));
+                a.setNombre(res.getString("nombre"));
+                a.setDireccion(res.getString("direccion"));
+                a.setCiudad(res.getString("ciudad"));
+                a.setTelefono(res.getString("telefono"));
+                a.setResponsable(res.getString("responsable"));
+            }
+            pst.close();
+            res.close();
+        } catch (Exception e) {
+            throw e;
+        }finally{
+            this.cerrar();
+        }
+        
+        return a;
+    }
+    
+    public Almacen Obtener(String nomAlmacen) throws SQLException, Exception{
+        Almacen a = null;
+        try {
+            this.conectar();
+            PreparedStatement pst = this.conexion.prepareStatement("SELECT * FROM almacen WHERE nombre = ?");
+            pst.setString(1, nomAlmacen);
+            ResultSet res = pst.executeQuery();
+            while (res.next()) {
+                a = new Almacen();
+                a.setId(res.getInt(1));
+                a.setNombre(res.getString(2));
+                a.setDireccion(res.getString(3));
+                a.setCiudad(res.getString(4));
+                a.setTelefono(res.getString(5));
+                a.setResponsable(res.getString(6));
+            }
+            pst.close();
+            res.close();
+        } catch (Exception e) {
+            throw e;
+        }finally{
+            this.cerrar();
+        }
+        
+        return a;
+    }
 }
