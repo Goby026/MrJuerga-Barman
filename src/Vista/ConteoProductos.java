@@ -35,7 +35,7 @@ public class ConteoProductos extends javax.swing.JFrame {
 
     String usuario;
     DefaultTableModel modelo;
-    ManejadorFechas mf = null;
+    ManejadorFechas mf = new ManejadorFechas();
 
     public ConteoProductos(String user) {
         initComponents();
