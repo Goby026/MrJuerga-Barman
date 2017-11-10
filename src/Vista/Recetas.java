@@ -375,7 +375,7 @@ public class Recetas extends javax.swing.JFrame {
             for (int i = 0; i < tblPreparacion.getRowCount(); i++) {
                 p.setIdProducto(idProducto);
                 p.setIdProductoPresentacion(Integer.parseInt(tblPreparacion.getValueAt(i, 0).toString()));
-                p.setCantidad(Integer.parseInt(tblPreparacion.getValueAt(i, 2).toString()));
+                p.setCantidad(Double.parseDouble(tblPreparacion.getValueAt(i, 2).toString()));
                 p.setDetalles("");
                 if (pdao.Registrar(p)) {
                     System.out.println("preparacion registrada");
