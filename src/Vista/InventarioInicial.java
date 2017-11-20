@@ -29,15 +29,15 @@ import javax.swing.table.DefaultTableModel;
 
 /**
  *
- * @author MARCEL
+ * @author GROVER
  */
-public class ConteoProductos extends javax.swing.JFrame {
+public class InventarioInicial extends javax.swing.JFrame {
 
     String usuario;
     DefaultTableModel modelo;
     ManejadorFechas mf = new ManejadorFechas();
 
-    public ConteoProductos(String user) {
+    public InventarioInicial(String user) {
         initComponents();
         setLocationRelativeTo(null);
 
@@ -51,7 +51,7 @@ public class ConteoProductos extends javax.swing.JFrame {
         lblFecha.setText(mf.getFechaActual());
     }
 
-    public ConteoProductos() {
+    public InventarioInicial() {
     }
 
     private void cargarComboAlmacen() {
@@ -76,7 +76,7 @@ public class ConteoProductos extends javax.swing.JFrame {
 
         jScrollPane1 = new javax.swing.JScrollPane();
         tblConteo = new javax.swing.JTable();
-        jLabel1 = new javax.swing.JLabel();
+        lblAlmacen = new javax.swing.JLabel();
         lblUsuario = new javax.swing.JLabel();
         lblFecha = new javax.swing.JLabel();
         btnVolver = new javax.swing.JButton();
@@ -89,6 +89,8 @@ public class ConteoProductos extends javax.swing.JFrame {
         jLabel3 = new javax.swing.JLabel();
         txtCantidad = new javax.swing.JTextField();
         btnOk = new javax.swing.JButton();
+        jLabel4 = new javax.swing.JLabel();
+        jLabel5 = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         getContentPane().setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
@@ -118,10 +120,10 @@ public class ConteoProductos extends javax.swing.JFrame {
 
         getContentPane().add(jScrollPane1, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 100, 720, 440));
 
-        jLabel1.setFont(new java.awt.Font("Tahoma", 0, 24)); // NOI18N
-        jLabel1.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        jLabel1.setText("LISTA DE PRODUCTOS CONTABILIZADOS - BARMAN");
-        getContentPane().add(jLabel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 10, 740, -1));
+        lblAlmacen.setFont(new java.awt.Font("Arial", 0, 10)); // NOI18N
+        lblAlmacen.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        lblAlmacen.setText(".........");
+        getContentPane().add(lblAlmacen, new org.netbeans.lib.awtextra.AbsoluteConstraints(570, 10, 160, -1));
 
         lblUsuario.setFont(new java.awt.Font("Arial", 0, 14)); // NOI18N
         lblUsuario.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
@@ -155,8 +157,10 @@ public class ConteoProductos extends javax.swing.JFrame {
         });
         getContentPane().add(btnGuardar, new org.netbeans.lib.awtextra.AbsoluteConstraints(540, 620, 190, 30));
 
+        cmbAlmacen.setFont(new java.awt.Font("Arial", 0, 10)); // NOI18N
         getContentPane().add(cmbAlmacen, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 60, 280, -1));
 
+        btnMostrar.setFont(new java.awt.Font("Arial", 0, 10)); // NOI18N
         btnMostrar.setText("MOSTRAR");
         btnMostrar.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -190,6 +194,16 @@ public class ConteoProductos extends javax.swing.JFrame {
         });
         getContentPane().add(btnOk, new org.netbeans.lib.awtextra.AbsoluteConstraints(670, 550, -1, -1));
 
+        jLabel4.setFont(new java.awt.Font("Arial", 0, 14)); // NOI18N
+        jLabel4.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        jLabel4.setText("INVENTARIO INICIAL - BARMAN");
+        getContentPane().add(jLabel4, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 10, 210, -1));
+
+        jLabel5.setFont(new java.awt.Font("Arial", 0, 10)); // NOI18N
+        jLabel5.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        jLabel5.setText("ALMACEN");
+        getContentPane().add(jLabel5, new org.netbeans.lib.awtextra.AbsoluteConstraints(490, 10, 80, -1));
+
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
@@ -214,7 +228,7 @@ public class ConteoProductos extends javax.swing.JFrame {
         try {
             cargarTabla(a.getId(), "");
         } catch (SQLException ex) {
-            Logger.getLogger(ConteoProductos.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(InventarioInicial.class.getName()).log(Level.SEVERE, null, ex);
         }
     }//GEN-LAST:event_btnMostrarActionPerformed
 
@@ -261,20 +275,21 @@ public class ConteoProductos extends javax.swing.JFrame {
                 }
             }
         } catch (ClassNotFoundException ex) {
-            java.util.logging.Logger.getLogger(ConteoProductos.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(InventarioInicial.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         } catch (InstantiationException ex) {
-            java.util.logging.Logger.getLogger(ConteoProductos.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(InventarioInicial.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         } catch (IllegalAccessException ex) {
-            java.util.logging.Logger.getLogger(ConteoProductos.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(InventarioInicial.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         } catch (javax.swing.UnsupportedLookAndFeelException ex) {
-            java.util.logging.Logger.getLogger(ConteoProductos.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(InventarioInicial.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         }
+        //</editor-fold>
         //</editor-fold>
 
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
-                new ConteoProductos().setVisible(true);
+                new InventarioInicial().setVisible(true);
             }
         });
     }
@@ -285,11 +300,13 @@ public class ConteoProductos extends javax.swing.JFrame {
     private javax.swing.JButton btnOk;
     public javax.swing.JButton btnVolver;
     private javax.swing.JComboBox<Almacen> cmbAlmacen;
-    private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
+    private javax.swing.JLabel jLabel4;
+    private javax.swing.JLabel jLabel5;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JSeparator jSeparator1;
+    private javax.swing.JLabel lblAlmacen;
     private javax.swing.JLabel lblFecha;
     private javax.swing.JLabel lblUsuario;
     private javax.swing.JTable tblConteo;
@@ -356,6 +373,9 @@ public class ConteoProductos extends javax.swing.JFrame {
                 if (opc == 0) { //verdadero
                     int contador = 0;
                     try {
+                        //registrar inventario
+                        
+                        
                         //primero registrar el conteo
                         Conteo c = new Conteo();
                         UsuarioDAO udao = new UsuarioDAO();
@@ -388,7 +408,7 @@ public class ConteoProductos extends javax.swing.JFrame {
                         if (contador > 0) {
                             JOptionPane.showMessageDialog(getRootPane(), "SE REGISTRO EL CONTEO EXITOSAMENTE");
 //                            parametros.put("fecha", cd.lblFecha.getText());
-//                            mrv = new MyiReportVisor(System.getProperty("user.dir") + "\\reportes\\ConteoProductos.jrxml", parametros, new ColumnasTablas().getPageSize(cd.tblContados));
+//                            mrv = new MyiReportVisor(System.getProperty("user.dir") + "\\reportes\\InventarioInicial.jrxml", parametros, new ColumnasTablas().getPageSize(cd.tblContados));
 //                            mrv.setNombreArchivo("Conteo" + cd.lblFecha.getText());
 //                            mrv.exportarAPdf();
 //                            mrv.dispose();

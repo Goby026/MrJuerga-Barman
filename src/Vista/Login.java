@@ -2,6 +2,8 @@ package Vista;
 
 import Controlador.LoginControl;
 import java.awt.Color;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.JOptionPane;
 
 /**
@@ -10,11 +12,8 @@ import javax.swing.JOptionPane;
  */
 public class Login extends javax.swing.JFrame {
 
-    /*NOTA: Estoy en la laptop de ammy y acabo de sanear todo el proyecto
-    sin embargo no puedo hacer las pruebas de acceso a datos por q el drive de la empresa
-    no quiere descargar el script sql para restaurar la base de datos.
-    PDTA: Estoy probando las ramas en GITHUB
-     */
+    String storage = null;
+
     public Login() {
         setUndecorated(true);
         initComponents();
@@ -30,7 +29,6 @@ public class Login extends javax.swing.JFrame {
 //        Toolkit tk = Toolkit.getDefaultToolkit();
 //        setIconImage(tk.getImage(getClass().getResource("/img/party1.png")));
 //    }
-
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -40,6 +38,9 @@ public class Login extends javax.swing.JFrame {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
+        formAlmacen = new javax.swing.JDialog();
+        btnBarraVip = new javax.swing.JButton();
+        btnBarraGeneral = new javax.swing.JButton();
         panelLogin = new javax.swing.JPanel();
         jLabel10 = new javax.swing.JLabel();
         jLabel9 = new javax.swing.JLabel();
@@ -48,6 +49,29 @@ public class Login extends javax.swing.JFrame {
         btnCancelar = new javax.swing.JButton();
         btnIniciar = new javax.swing.JButton();
         lblFondo = new javax.swing.JLabel();
+
+        formAlmacen.getContentPane().setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+
+        btnBarraVip.setBackground(new java.awt.Color(102, 102, 102));
+        btnBarraVip.setFont(new java.awt.Font("Arial", 0, 24)); // NOI18N
+        btnBarraVip.setForeground(new java.awt.Color(255, 255, 255));
+        btnBarraVip.setText("BARRA VIP");
+        btnBarraVip.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnBarraVipActionPerformed(evt);
+            }
+        });
+        formAlmacen.getContentPane().add(btnBarraVip, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 150, 380, 100));
+
+        btnBarraGeneral.setBackground(new java.awt.Color(204, 255, 204));
+        btnBarraGeneral.setFont(new java.awt.Font("Arial", 0, 24)); // NOI18N
+        btnBarraGeneral.setText("BARRA GENERAL");
+        btnBarraGeneral.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnBarraGeneralActionPerformed(evt);
+            }
+        });
+        formAlmacen.getContentPane().add(btnBarraGeneral, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 40, 380, 100));
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("LOGIN");
@@ -137,9 +161,9 @@ public class Login extends javax.swing.JFrame {
             String usu = txtUsuario.getText().toUpperCase();
             String pass = String.valueOf(txtPass.getPassword()).toUpperCase();
             if (new LoginControl().validar(usu, pass)) {
-                VistaRequerimientoBarman m = new VistaRequerimientoBarman(usu);
-                m.setVisible(true);
-                dispose();
+                formAlmacen.setVisible(true);
+                formAlmacen.setBounds(700, 350, 420, 320);
+                //dispose();
             } else {
                 JOptionPane.showMessageDialog(null, "DATOS INCORRECTOS");
             }
@@ -159,6 +183,30 @@ public class Login extends javax.swing.JFrame {
     private void btnCancelarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCancelarActionPerformed
         System.exit(0);
     }//GEN-LAST:event_btnCancelarActionPerformed
+
+    private void btnBarraGeneralActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnBarraGeneralActionPerformed
+        try {
+            storage = "BARRA GENERAL";
+            CierreBarman cb = new CierreBarman(txtUsuario.getText(), storage);
+            cb.setVisible(true);
+            formAlmacen.dispose();
+            dispose();
+        } catch (Exception ex) {
+            System.out.println("Error: "+ex.getMessage());
+        }
+    }//GEN-LAST:event_btnBarraGeneralActionPerformed
+
+    private void btnBarraVipActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnBarraVipActionPerformed
+        try {
+            storage = "BARRA VIP";
+            CierreBarman cb = new CierreBarman(txtUsuario.getText(), storage);
+            cb.setVisible(true);
+            formAlmacen.dispose();
+            dispose();
+        } catch (Exception ex) {
+            System.out.println("Error: "+ex.getMessage());
+        }
+    }//GEN-LAST:event_btnBarraVipActionPerformed
 
     /**
      * @param args the command line arguments
@@ -197,8 +245,11 @@ public class Login extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton btnBarraGeneral;
+    private javax.swing.JButton btnBarraVip;
     private javax.swing.JButton btnCancelar;
     public javax.swing.JButton btnIniciar;
+    private javax.swing.JDialog formAlmacen;
     private javax.swing.JLabel jLabel10;
     private javax.swing.JLabel jLabel9;
     private javax.swing.JLabel lblFondo;

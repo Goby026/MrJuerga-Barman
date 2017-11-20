@@ -436,6 +436,27 @@ public class ProductoPresentacionDAO extends Conexion implements DAO<ProductoPre
         }
         return false;
     }
+    
+            //actualizar el stock2 segun idproducto e idalmacen indicado
+    public boolean updateStock2(double newStock, int idProducto, int idAlmacen) throws Exception {
+        String sql = "UPDATE productopresentacion SET stock2 = ? WHERE idproducto = ? AND idalmacen = ?";
+        try {
+            this.conectar();
+            PreparedStatement pst = this.conexion.prepareStatement(sql);
+            pst.setDouble(1, newStock);
+            pst.setInt(2, idProducto);
+            pst.setInt(3, idAlmacen);
+            if (pst.executeUpdate() > 0) {
+                return true;
+            }
+        } catch (SQLException e) {
+            throw e;
+        } finally {
+            this.cerrar();
+        }
+        return false;
+    }
+    
 
     public boolean updatePrecio(ProductoPresentacion pp) throws Exception {
         try {

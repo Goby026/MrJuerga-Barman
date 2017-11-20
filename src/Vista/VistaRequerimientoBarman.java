@@ -7,7 +7,6 @@ import Modelo.Almacen;
 import Modelo.Medida;
 import Modelo.MySQLDAO.AlmacenDAO;
 import Modelo.MySQLDAO.Conexion;
-import Modelo.MySQLDAO.ProductoPresentacionDAO;
 import java.awt.Color;
 import java.sql.Connection;
 import java.sql.ResultSet;
@@ -166,16 +165,16 @@ public class VistaRequerimientoBarman extends javax.swing.JFrame {
                 btnListarPedidosActionPerformed(evt);
             }
         });
-        getContentPane().add(btnListarPedidos, new org.netbeans.lib.awtextra.AbsoluteConstraints(990, 570, 200, -1));
+        getContentPane().add(btnListarPedidos, new org.netbeans.lib.awtextra.AbsoluteConstraints(1010, 680, 180, -1));
 
         btnGuardar.setFont(new java.awt.Font("Arial", 0, 14)); // NOI18N
-        btnGuardar.setText("HACER PEDIDO");
+        btnGuardar.setText("REGISTRAR");
         btnGuardar.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 btnGuardarActionPerformed(evt);
             }
         });
-        getContentPane().add(btnGuardar, new org.netbeans.lib.awtextra.AbsoluteConstraints(990, 610, 200, -1));
+        getContentPane().add(btnGuardar, new org.netbeans.lib.awtextra.AbsoluteConstraints(970, 560, 200, -1));
 
         tblRequerimientos = new javax.swing.JTable(){
             public boolean isCellEditable(int rowIndex,int colIndex){
@@ -199,7 +198,7 @@ public class VistaRequerimientoBarman extends javax.swing.JFrame {
 
         jLabel3.setFont(new java.awt.Font("Microsoft Yi Baiti", 0, 18)); // NOI18N
         jLabel3.setText("AREA SOLICITANTE");
-        getContentPane().add(jLabel3, new org.netbeans.lib.awtextra.AbsoluteConstraints(720, 460, -1, -1));
+        getContentPane().add(jLabel3, new org.netbeans.lib.awtextra.AbsoluteConstraints(700, 520, -1, -1));
 
         jLabel5.setFont(new java.awt.Font("Arial", 0, 14)); // NOI18N
         jLabel5.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
@@ -279,14 +278,14 @@ public class VistaRequerimientoBarman extends javax.swing.JFrame {
                 btnConteoActionPerformed(evt);
             }
         });
-        getContentPane().add(btnConteo, new org.netbeans.lib.awtextra.AbsoluteConstraints(990, 530, 200, -1));
+        getContentPane().add(btnConteo, new org.netbeans.lib.awtextra.AbsoluteConstraints(820, 680, 180, -1));
 
         jLabel10.setFont(new java.awt.Font("Microsoft Yi Baiti", 0, 18)); // NOI18N
         jLabel10.setText("OBSERVACIONES");
         getContentPane().add(jLabel10, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 440, -1, -1));
 
         cmbAlmacen.setFont(new java.awt.Font("Microsoft Yi Baiti", 0, 18)); // NOI18N
-        getContentPane().add(cmbAlmacen, new org.netbeans.lib.awtextra.AbsoluteConstraints(720, 490, 240, -1));
+        getContentPane().add(cmbAlmacen, new org.netbeans.lib.awtextra.AbsoluteConstraints(700, 560, 240, -1));
 
         jLabel2.setFont(new java.awt.Font("Microsoft Yi Baiti", 0, 18)); // NOI18N
         jLabel2.setForeground(new java.awt.Color(102, 102, 102));
@@ -324,7 +323,7 @@ public class VistaRequerimientoBarman extends javax.swing.JFrame {
                 btnRecetasActionPerformed(evt);
             }
         });
-        getContentPane().add(btnRecetas, new org.netbeans.lib.awtextra.AbsoluteConstraints(990, 490, 200, -1));
+        getContentPane().add(btnRecetas, new org.netbeans.lib.awtextra.AbsoluteConstraints(630, 680, 180, -1));
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
@@ -348,7 +347,7 @@ public class VistaRequerimientoBarman extends javax.swing.JFrame {
     }//GEN-LAST:event_btnRecetasActionPerformed
 
     private void btnConteoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnConteoActionPerformed
-        ConteoProductos cp = new ConteoProductos(txtUsuario.getText());
+        InventarioInicial cp = new InventarioInicial(txtUsuario.getText());
         cp.setVisible(true);
         dispose();
     }//GEN-LAST:event_btnConteoActionPerformed
