@@ -17,6 +17,8 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.JOptionPane;
 
 /**
@@ -212,6 +214,11 @@ public class CierreBarman extends javax.swing.JFrame {
 
         btnRequerimiento.setFont(new java.awt.Font("Arial", 0, 12)); // NOI18N
         btnRequerimiento.setText("REQUERIMIENTOS");
+        btnRequerimiento.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnRequerimientoActionPerformed(evt);
+            }
+        });
         getContentPane().add(btnRequerimiento, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 10, 160, 60));
 
         jTextField1.setFont(new java.awt.Font("Arial", 0, 12)); // NOI18N
@@ -344,6 +351,16 @@ public class CierreBarman extends javax.swing.JFrame {
             System.out.println("NO");
         }
     }//GEN-LAST:event_btnInventarioInicialActionPerformed
+
+    private void btnRequerimientoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnRequerimientoActionPerformed
+        try {
+            VistaRequerimientoBarman req = new VistaRequerimientoBarman(lblUsuario.getText(), lblAlmacen.getText());
+            req.setVisible(true);
+            dispose();
+        } catch (Exception ex) {
+            Logger.getLogger(CierreBarman.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }//GEN-LAST:event_btnRequerimientoActionPerformed
 
     /**
      * @param args the command line arguments

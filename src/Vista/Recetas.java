@@ -2,6 +2,8 @@
 package Vista;
 
 import Controlador.ColumnasTablas;
+import Controlador.Cronometro;
+import Controlador.ManejadorFechas;
 import Modelo.MySQLDAO.Conexion;
 import Modelo.MySQLDAO.PreparacionDAO;
 import Modelo.MySQLDAO.ProductoPresentacionDAO;
@@ -28,13 +30,16 @@ public class Recetas extends javax.swing.JFrame {
     DefaultTableModel modeloPreparaciones;
     String usuario;
 
-    public Recetas(String user) {
+    public Recetas(String user, String storage) {
         initComponents();        
         setLocationRelativeTo(null);
         
         this.usuario = user;
         
         lblUsuario.setText(usuario);
+        lblAlmacen.setText(storage);
+        lblFecha.setText(new ManejadorFechas().getFechaActual());
+        new Cronometro().iniciarCronometro(txtHora);
         
         titulosPreparaciones();
     }
@@ -85,9 +90,10 @@ public class Recetas extends javax.swing.JFrame {
         btnVolver = new javax.swing.JButton();
         jPanel1 = new javax.swing.JPanel();
         jLabel5 = new javax.swing.JLabel();
+        txtHora = new javax.swing.JTextField();
         lblUsuario = new javax.swing.JLabel();
         lblFecha = new javax.swing.JLabel();
-        lblHora = new javax.swing.JLabel();
+        lblAlmacen = new javax.swing.JLabel();
         jLabel12 = new javax.swing.JLabel();
 
         tblBuscarProductos = new javax.swing.JTable(){
@@ -334,22 +340,29 @@ public class Recetas extends javax.swing.JFrame {
         jLabel5.setText("RECETAS");
         jPanel1.add(jLabel5, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 30, -1, -1));
 
-        lblUsuario.setFont(new java.awt.Font("Microsoft Yi Baiti", 0, 18)); // NOI18N
+        txtHora.setEditable(false);
+        txtHora.setBackground(new java.awt.Color(102, 102, 102));
+        txtHora.setFont(new java.awt.Font("Arial", 0, 12)); // NOI18N
+        txtHora.setForeground(new java.awt.Color(255, 255, 255));
+        txtHora.setBorder(null);
+        jPanel1.add(txtHora, new org.netbeans.lib.awtextra.AbsoluteConstraints(280, 80, 170, -1));
+
+        lblUsuario.setFont(new java.awt.Font("Arial", 0, 12)); // NOI18N
         lblUsuario.setForeground(new java.awt.Color(255, 255, 255));
         lblUsuario.setText("....");
         jPanel1.add(lblUsuario, new org.netbeans.lib.awtextra.AbsoluteConstraints(280, 20, 180, -1));
 
-        lblFecha.setFont(new java.awt.Font("Microsoft Yi Baiti", 0, 18)); // NOI18N
+        lblFecha.setFont(new java.awt.Font("Arial", 0, 12)); // NOI18N
         lblFecha.setForeground(new java.awt.Color(255, 255, 255));
         lblFecha.setText("....");
-        jPanel1.add(lblFecha, new org.netbeans.lib.awtextra.AbsoluteConstraints(280, 50, 180, -1));
+        jPanel1.add(lblFecha, new org.netbeans.lib.awtextra.AbsoluteConstraints(280, 50, 170, -1));
 
-        lblHora.setFont(new java.awt.Font("Microsoft Yi Baiti", 0, 18)); // NOI18N
-        lblHora.setForeground(new java.awt.Color(255, 255, 255));
-        lblHora.setText("....");
-        jPanel1.add(lblHora, new org.netbeans.lib.awtextra.AbsoluteConstraints(280, 80, 180, -1));
+        lblAlmacen.setFont(new java.awt.Font("Arial", 0, 12)); // NOI18N
+        lblAlmacen.setForeground(new java.awt.Color(255, 255, 255));
+        lblAlmacen.setText("....");
+        jPanel1.add(lblAlmacen, new org.netbeans.lib.awtextra.AbsoluteConstraints(280, 100, 170, -1));
 
-        getContentPane().add(jPanel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 480, 130));
+        getContentPane().add(jPanel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 490, 130));
 
         jLabel12.setFont(new java.awt.Font("Microsoft Yi Baiti", 0, 18)); // NOI18N
         jLabel12.setForeground(new java.awt.Color(51, 51, 51));
@@ -539,7 +552,7 @@ public class Recetas extends javax.swing.JFrame {
 
     private void btnVolverActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnVolverActionPerformed
         try {
-            VistaRequerimientoBarman vrb = new VistaRequerimientoBarman(usuario);
+            VistaRequerimientoBarman vrb = new VistaRequerimientoBarman(usuario, lblAlmacen.getText());
             vrb.setVisible(true);            
             dispose();
         } catch (Exception ex) {
@@ -606,9 +619,9 @@ public class Recetas extends javax.swing.JFrame {
     private javax.swing.JScrollPane jScrollPane4;
     private javax.swing.JScrollPane jScrollPane5;
     private javax.swing.JSeparator jSeparator1;
+    private javax.swing.JLabel lblAlmacen;
     private javax.swing.JLabel lblCodProducto;
     private javax.swing.JLabel lblFecha;
-    private javax.swing.JLabel lblHora;
     private javax.swing.JLabel lblProductoPresentacion;
     private javax.swing.JLabel lblUsuario;
     public javax.swing.JDialog panelProductoPresentacion;
@@ -621,6 +634,7 @@ public class Recetas extends javax.swing.JFrame {
     public javax.swing.JTextField txtComponente;
     public javax.swing.JTextField txtFiltroProducto;
     public javax.swing.JTextField txtFiltroProductoPresentacion;
+    private javax.swing.JTextField txtHora;
     // End of variables declaration//GEN-END:variables
 
     public void titulosBuscarProductos() {

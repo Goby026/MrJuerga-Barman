@@ -16,12 +16,13 @@ public class BuscarRequerimientos extends javax.swing.JFrame {
     BuscarRequerimientosControl brc;
     String usuario;
     
-    public BuscarRequerimientos(String user) {
+    public BuscarRequerimientos(String user, String storage) {
         initComponents();
         setLocationRelativeTo(null);
         
         this.usuario = user;
         lblUsuario.setText(usuario);
+        lblAlmacen.setText(storage);
         
         brc= new BuscarRequerimientosControl(this);
     }
@@ -55,6 +56,7 @@ public class BuscarRequerimientos extends javax.swing.JFrame {
         lblUsuario = new javax.swing.JLabel();
         lblFecha = new javax.swing.JLabel();
         lblHora = new javax.swing.JLabel();
+        lblAlmacen = new javax.swing.JLabel();
 
         tblDetalleRequerimiento = new javax.swing.JTable(){
             public boolean isCellEditable(int rowIndex, int colIndex){
@@ -140,12 +142,17 @@ public class BuscarRequerimientos extends javax.swing.JFrame {
         lblHora.setText("time");
         getContentPane().add(lblHora, new org.netbeans.lib.awtextra.AbsoluteConstraints(690, 20, 170, -1));
 
+        lblAlmacen.setFont(new java.awt.Font("Arial", 0, 10)); // NOI18N
+        lblAlmacen.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        lblAlmacen.setText(".........");
+        getContentPane().add(lblAlmacen, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 20, 160, -1));
+
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
     private void btnVolverActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnVolverActionPerformed
         try {
-            VistaRequerimientoBarman vrb = new VistaRequerimientoBarman(usuario);
+            VistaRequerimientoBarman vrb = new VistaRequerimientoBarman(usuario, lblAlmacen.getText());
             vrb.setVisible(true);
             dispose();
         } catch (Exception ex) {
@@ -199,6 +206,7 @@ public class BuscarRequerimientos extends javax.swing.JFrame {
     private javax.swing.JScrollPane jScrollPane2;
     public com.toedter.calendar.JDateChooser jdcFinal;
     public com.toedter.calendar.JDateChooser jdcInicio;
+    private javax.swing.JLabel lblAlmacen;
     private javax.swing.JLabel lblFecha;
     private javax.swing.JLabel lblHora;
     private javax.swing.JLabel lblUsuario;

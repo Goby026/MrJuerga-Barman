@@ -37,12 +37,13 @@ public class InventarioInicial extends javax.swing.JFrame {
     DefaultTableModel modelo;
     ManejadorFechas mf = new ManejadorFechas();
 
-    public InventarioInicial(String user) {
+    public InventarioInicial(String user, String storage) {
         initComponents();
         setLocationRelativeTo(null);
 
         this.usuario = user;
         lblUsuario.setText(usuario);
+        lblAlmacen.setText(storage);
 
         DropXlsx dropXlsx = new DropXlsx();
         dropXlsx.setJtable(tblConteo);
@@ -209,7 +210,7 @@ public class InventarioInicial extends javax.swing.JFrame {
 
     private void btnVolverActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnVolverActionPerformed
         try {
-            VistaRequerimientoBarman vrb = new VistaRequerimientoBarman(usuario);
+            VistaRequerimientoBarman vrb = new VistaRequerimientoBarman(usuario,lblAlmacen.getText());
             vrb.setVisible(true);
             dispose();
         } catch (Exception ex) {
