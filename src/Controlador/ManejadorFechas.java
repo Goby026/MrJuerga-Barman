@@ -40,6 +40,21 @@ public class ManejadorFechas {
         return formateador.format(ahora);
     }
 
+    //metodo para sumar o restar un determinado numero de dias a una fecha
+    public Date sumarRestarDiasFecha(Date fecha, int dias) {
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(fecha); // Configuramos la fecha que se recibe
+        calendar.add(Calendar.DAY_OF_YEAR, dias);  // numero de días a añadir, o restar en caso de días<0
+        return calendar.getTime(); // Devuelve el objeto Date con los nuevos días añadidos
+    }
+    
+    public String setFormatoFec(Date f){
+        //Date f = jdc.getDate();
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+        String fecha = sdf.format(f);
+        return fecha; 
+    }
+
     //Sumarle dias a una fecha determinada
     //@param fch La fecha para sumarle los dias
     //@param dias Numero de dias a agregar

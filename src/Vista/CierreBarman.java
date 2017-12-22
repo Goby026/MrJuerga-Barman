@@ -7,10 +7,23 @@ package Vista;
 
 import Controlador.ColumnasTablas;
 import Controlador.Cronometro;
+import Controlador.FormatoFechas;
 import Controlador.JTableControl;
 import Controlador.ManejadorFechas;
+import Modelo.Almacen;
+import Modelo.MySQLDAO.AlmacenDAO;
 import Modelo.MySQLDAO.Conexion;
-import java.sql.Connection;
+import Modelo.MySQLDAO.FlujoInventarioDAO;
+import Modelo.MySQLDAO.ProductoPresentacionDAO;
+import Modelo.MySQLDAO.ProductoRotoDAO;
+import Modelo.MySQLDAO.ProductoSinRecogerDAO;
+import Modelo.MySQLDAO.RequerimientoDAO;
+import Modelo.MySQLDAO.UsuarioDAO;
+import Modelo.ProductoPresentacion;
+import Modelo.ProductoRoto;
+import Modelo.ProductoSinRecoger;
+import Modelo.Requerimiento;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -29,26 +42,77 @@ public class CierreBarman extends javax.swing.JFrame {
 
     JTableControl jcEntradaGneral;
     JTableControl jcEntradaGneral2;
+    JTableControl jcCajaGeneral;
+    JTableControl jcCajaGeneral2;
     JTableControl jcTotal;
+    JTableControl jcTotalVentas;
+    JTableControl jcBuscarProducto;
+    JTableControl jcProductoSinRecoger;
+    JTableControl jcIngresos;
+    JTableControl jcStockFinal;
+    JTableControl jcRequerimiento;
+    JTableControl jcTraslado;
+    JTableControl jcTotalProductosRotos;
+    JTableControl jcTotalProductoSinRecoger;
+
+    Almacen almacen = null;
+    int idUsuario = 0;
+    int tipoProducto = 0; //variable para reconocer si es un producto sin recoger o un producto roto
+
+    boolean ingresos = true;
+    boolean salidaPorVenta = true;
+    boolean prodRotos = true;
+    boolean prodSinRec = true;
 
     public CierreBarman(String usuario, String storage) throws Exception {
         initComponents();
         setLocationRelativeTo(null);
 
+        formSalidaPorVentas.setTitle(storage);
         lblUsuario.setText(usuario);
         lblAlmacen.setText(storage);
+        almacen = new AlmacenDAO().Obtener(storage);
+        idUsuario = new UsuarioDAO().getIdUsuario(usuario);
         lblFecha.setText(new ManejadorFechas().getFechaActual());
         new Cronometro().iniciarCronometro(txtHora);
 
+        this.setTitle("CIERRE DE BARMAN - " + storage);
+
         String titulos[] = {"COD", "PRODUCTO", "PRESENTACION", "CANTIDAD"};
+        String titulosBuscarProducto[] = {"COD", "PRODUCTO", "PRESENTACION"};
+        String titulosTraslados[] = {"COD", "PRODUCTO", "PRESENTACION", "ORIGEN", "DESTINO", "CANTIDAD"};
 
         jcEntradaGneral = new JTableControl(titulos, tblEntradaGeneral);
         jcEntradaGneral2 = new JTableControl(titulos, tblEntradaGeneral2);
+        jcCajaGeneral = new JTableControl(titulos, tblCajaGeneral);
+        jcCajaGeneral2 = new JTableControl(titulos, tblCajaGeneral2);
         jcTotal = new JTableControl(titulos, tblTotal);
+        jcTotalVentas = new JTableControl(titulos, tblVentas);
+        jcBuscarProducto = new JTableControl(titulosBuscarProducto, tblBuscarProductoSinRecoger);
+        jcProductoSinRecoger = new JTableControl(titulos, tblProductosSinRecogerRotos);
+        jcIngresos = new JTableControl(titulos, tblTotalIngresos);
+        jcStockFinal = new JTableControl(titulos, tblStockFinal);
+        jcRequerimiento = new JTableControl(titulos, tblIngresosRequerimientos);
+        jcTraslado = new JTableControl(titulosTraslados, tblIngresosTraslados);
+        jcTotalProductosRotos = new JTableControl(titulos, tblProductoRotos);
+        jcTotalProductoSinRecoger = new JTableControl(titulos, tblProductoSinRecoger);
 
         jcEntradaGneral.llenarTitulos();
         jcEntradaGneral2.llenarTitulos();
+        jcCajaGeneral.llenarTitulos();
+        jcCajaGeneral2.llenarTitulos();
         jcTotal.llenarTitulos();
+        jcTotalVentas.llenarTitulos();
+        jcBuscarProducto.llenarTitulos();
+        jcProductoSinRecoger.llenarTitulos();
+        jcIngresos.llenarTitulos();
+        jcStockFinal.llenarTitulos();
+        jcRequerimiento.llenarTitulos();
+        jcTraslado.llenarTitulos();
+        jcTotalProductosRotos.llenarTitulos();
+        jcTotalProductoSinRecoger.llenarTitulos();
+
+        cargarInventarioInicial(almacen.getId());
 
     }
 
@@ -68,8 +132,6 @@ public class CierreBarman extends javax.swing.JFrame {
         formSalidaPorVentas = new javax.swing.JDialog();
         jScrollPane1 = new javax.swing.JScrollPane();
         tblEntradaGeneral2 = new javax.swing.JTable();
-        cbEntradaGeneral2 = new javax.swing.JCheckBox();
-        cbEntradaGeneral = new javax.swing.JCheckBox();
         jScrollPane2 = new javax.swing.JScrollPane();
         tblEntradaGeneral = new javax.swing.JTable();
         jScrollPane3 = new javax.swing.JScrollPane();
@@ -77,14 +139,42 @@ public class CierreBarman extends javax.swing.JFrame {
         jLabel1 = new javax.swing.JLabel();
         jButton3 = new javax.swing.JButton();
         jScrollPane4 = new javax.swing.JScrollPane();
-        jTable1 = new javax.swing.JTable();
-        cbCaja = new javax.swing.JCheckBox();
-        formInventarioInicial = new javax.swing.JDialog();
+        tblCajaGeneral2 = new javax.swing.JTable();
+        jScrollPane7 = new javax.swing.JScrollPane();
+        tblCajaGeneral = new javax.swing.JTable();
+        jScrollPane8 = new javax.swing.JScrollPane();
+        jTextArea1 = new javax.swing.JTextArea();
         jLabel2 = new javax.swing.JLabel();
-        btnTraslado = new javax.swing.JButton();
-        btnRequerimiento = new javax.swing.JButton();
-        jTextField1 = new javax.swing.JTextField();
-        jTextField2 = new javax.swing.JTextField();
+        btnConfirmarTotal = new javax.swing.JButton();
+        jdcFechaInicioInventario = new com.toedter.calendar.JDateChooser();
+        jLabel8 = new javax.swing.JLabel();
+        btnMostrarVentas = new javax.swing.JButton();
+        jLabel9 = new javax.swing.JLabel();
+        jLabel10 = new javax.swing.JLabel();
+        jLabel11 = new javax.swing.JLabel();
+        jLabel12 = new javax.swing.JLabel();
+        formInventarioInicial = new javax.swing.JDialog();
+        jScrollPane11 = new javax.swing.JScrollPane();
+        tblInventarioInicial = new javax.swing.JTable();
+        jLabel4 = new javax.swing.JLabel();
+        formProductosSinRecogerRotos = new javax.swing.JDialog();
+        jScrollPane6 = new javax.swing.JScrollPane();
+        tblBuscarProductoSinRecoger = new javax.swing.JTable();
+        btnBuscarProductoSinRecoger = new javax.swing.JButton();
+        txtBuscarProducto = new javax.swing.JTextField();
+        btnSeleccionarProductoSinRecoger = new javax.swing.JButton();
+        jScrollPane12 = new javax.swing.JScrollPane();
+        tblProductosSinRecogerRotos = new javax.swing.JTable();
+        jLabel7 = new javax.swing.JLabel();
+        btnConfirmarProductoRotoSinRecoger = new javax.swing.JButton();
+        formIngresos = new javax.swing.JDialog();
+        jScrollPane9 = new javax.swing.JScrollPane();
+        tblIngresosRequerimientos = new javax.swing.JTable();
+        jScrollPane13 = new javax.swing.JScrollPane();
+        tblIngresosTraslados = new javax.swing.JTable();
+        jLabel14 = new javax.swing.JLabel();
+        jLabel15 = new javax.swing.JLabel();
+        btnConfirmarIngresos = new javax.swing.JButton();
         jPanel1 = new javax.swing.JPanel();
         lblUsuario = new javax.swing.JLabel();
         jlabelu = new javax.swing.JLabel();
@@ -94,9 +184,29 @@ public class CierreBarman extends javax.swing.JFrame {
         lblAlmacen = new javax.swing.JLabel();
         jlabelh1 = new javax.swing.JLabel();
         txtHora = new javax.swing.JTextField();
-        btnSalidaPorVentas = new javax.swing.JButton();
-        btnInventarioInicial = new javax.swing.JButton();
         jLabel3 = new javax.swing.JLabel();
+        jScrollPane5 = new javax.swing.JScrollPane();
+        tblVentas = new javax.swing.JTable();
+        jButton4 = new javax.swing.JButton();
+        jLabel5 = new javax.swing.JLabel();
+        jLabel6 = new javax.swing.JLabel();
+        jScrollPane10 = new javax.swing.JScrollPane();
+        tblStockFinal = new javax.swing.JTable();
+        jSeparator1 = new javax.swing.JSeparator();
+        btnSalidaPorVentas = new javax.swing.JButton();
+        btnProdSinRecog = new javax.swing.JButton();
+        btnVolver = new javax.swing.JButton();
+        btnConfirmarTotalBarra = new javax.swing.JButton();
+        btnIngresos = new javax.swing.JButton();
+        jScrollPane14 = new javax.swing.JScrollPane();
+        tblTotalIngresos = new javax.swing.JTable();
+        btnProductosRotos = new javax.swing.JButton();
+        jScrollPane15 = new javax.swing.JScrollPane();
+        tblProductoSinRecoger = new javax.swing.JTable();
+        jLabel13 = new javax.swing.JLabel();
+        jLabel16 = new javax.swing.JLabel();
+        jScrollPane16 = new javax.swing.JScrollPane();
+        tblProductoRotos = new javax.swing.JTable();
 
         formSalidaPorVentas.getContentPane().setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
@@ -114,23 +224,7 @@ public class CierreBarman extends javax.swing.JFrame {
         ));
         jScrollPane1.setViewportView(tblEntradaGeneral2);
 
-        formSalidaPorVentas.getContentPane().add(jScrollPane1, new org.netbeans.lib.awtextra.AbsoluteConstraints(400, 40, 370, 240));
-
-        cbEntradaGeneral2.setText("ENTRADA GENERAL 2");
-        cbEntradaGeneral2.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                cbEntradaGeneral2ActionPerformed(evt);
-            }
-        });
-        formSalidaPorVentas.getContentPane().add(cbEntradaGeneral2, new org.netbeans.lib.awtextra.AbsoluteConstraints(400, 10, -1, -1));
-
-        cbEntradaGeneral.setText("ENTRADA GENERAL");
-        cbEntradaGeneral.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                cbEntradaGeneralActionPerformed(evt);
-            }
-        });
-        formSalidaPorVentas.getContentPane().add(cbEntradaGeneral, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 10, -1, -1));
+        formSalidaPorVentas.getContentPane().add(jScrollPane1, new org.netbeans.lib.awtextra.AbsoluteConstraints(380, 50, 370, 240));
 
         tblEntradaGeneral.setFont(new java.awt.Font("Arial", 0, 10)); // NOI18N
         tblEntradaGeneral.setModel(new javax.swing.table.DefaultTableModel(
@@ -146,9 +240,9 @@ public class CierreBarman extends javax.swing.JFrame {
         ));
         jScrollPane2.setViewportView(tblEntradaGeneral);
 
-        formSalidaPorVentas.getContentPane().add(jScrollPane2, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 40, 370, 240));
+        formSalidaPorVentas.getContentPane().add(jScrollPane2, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 50, 370, 240));
 
-        tblTotal.setFont(new java.awt.Font("Arial", 0, 14)); // NOI18N
+        tblTotal.setFont(new java.awt.Font("Arial", 0, 10)); // NOI18N
         tblTotal.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
                 {null, null, null, null},
@@ -162,21 +256,21 @@ public class CierreBarman extends javax.swing.JFrame {
         ));
         jScrollPane3.setViewportView(tblTotal);
 
-        formSalidaPorVentas.getContentPane().add(jScrollPane3, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 350, 800, 280));
+        formSalidaPorVentas.getContentPane().add(jScrollPane3, new org.netbeans.lib.awtextra.AbsoluteConstraints(760, 60, 460, 330));
 
-        jLabel1.setText("TOTALES");
-        formSalidaPorVentas.getContentPane().add(jLabel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 330, -1, -1));
+        jLabel1.setText("OBSERVACIONES");
+        formSalidaPorVentas.getContentPane().add(jLabel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(760, 390, -1, -1));
 
-        jButton3.setText("jButton3");
+        jButton3.setText("TOTAL");
         jButton3.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jButton3ActionPerformed(evt);
             }
         });
-        formSalidaPorVentas.getContentPane().add(jButton3, new org.netbeans.lib.awtextra.AbsoluteConstraints(1080, 310, -1, -1));
+        formSalidaPorVentas.getContentPane().add(jButton3, new org.netbeans.lib.awtextra.AbsoluteConstraints(1150, 30, -1, -1));
 
-        jTable1.setFont(new java.awt.Font("Arial", 0, 10)); // NOI18N
-        jTable1.setModel(new javax.swing.table.DefaultTableModel(
+        tblCajaGeneral2.setFont(new java.awt.Font("Arial", 0, 10)); // NOI18N
+        tblCajaGeneral2.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
                 {null, null, null, null},
                 {null, null, null, null},
@@ -187,45 +281,228 @@ public class CierreBarman extends javax.swing.JFrame {
                 "Title 1", "Title 2", "Title 3", "Title 4"
             }
         ));
-        jScrollPane4.setViewportView(jTable1);
+        jScrollPane4.setViewportView(tblCajaGeneral2);
 
-        formSalidaPorVentas.getContentPane().add(jScrollPane4, new org.netbeans.lib.awtextra.AbsoluteConstraints(780, 40, 370, 250));
+        formSalidaPorVentas.getContentPane().add(jScrollPane4, new org.netbeans.lib.awtextra.AbsoluteConstraints(380, 310, 370, 240));
 
-        cbCaja.setText("CAJAS");
-        cbCaja.addActionListener(new java.awt.event.ActionListener() {
+        tblCajaGeneral.setFont(new java.awt.Font("Arial", 0, 10)); // NOI18N
+        tblCajaGeneral.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+                {null, null, null, null},
+                {null, null, null, null},
+                {null, null, null, null},
+                {null, null, null, null}
+            },
+            new String [] {
+                "Title 1", "Title 2", "Title 3", "Title 4"
+            }
+        ));
+        jScrollPane7.setViewportView(tblCajaGeneral);
+
+        formSalidaPorVentas.getContentPane().add(jScrollPane7, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 310, 370, 240));
+
+        jTextArea1.setColumns(20);
+        jTextArea1.setRows(5);
+        jScrollPane8.setViewportView(jTextArea1);
+
+        formSalidaPorVentas.getContentPane().add(jScrollPane8, new org.netbeans.lib.awtextra.AbsoluteConstraints(760, 410, 460, -1));
+
+        jLabel2.setFont(new java.awt.Font("Arial", 0, 12)); // NOI18N
+        jLabel2.setText("FECHA INICIO DE INVENTARIO");
+        formSalidaPorVentas.getContentPane().add(jLabel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 0, -1, 30));
+
+        btnConfirmarTotal.setText("CONFIRMAR TOTAL");
+        btnConfirmarTotal.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                cbCajaActionPerformed(evt);
+                btnConfirmarTotalActionPerformed(evt);
             }
         });
-        formSalidaPorVentas.getContentPane().add(cbCaja, new org.netbeans.lib.awtextra.AbsoluteConstraints(780, 10, -1, -1));
+        formSalidaPorVentas.getContentPane().add(btnConfirmarTotal, new org.netbeans.lib.awtextra.AbsoluteConstraints(1090, 520, -1, -1));
+
+        jdcFechaInicioInventario.setFont(new java.awt.Font("Arial", 0, 12)); // NOI18N
+        formSalidaPorVentas.getContentPane().add(jdcFechaInicioInventario, new org.netbeans.lib.awtextra.AbsoluteConstraints(190, 0, 210, 28));
+
+        jLabel8.setText("CAJA GENERAL 02");
+        formSalidaPorVentas.getContentPane().add(jLabel8, new org.netbeans.lib.awtextra.AbsoluteConstraints(380, 290, -1, -1));
+
+        btnMostrarVentas.setText("MOSTRAR VENTAS");
+        btnMostrarVentas.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnMostrarVentasActionPerformed(evt);
+            }
+        });
+        formSalidaPorVentas.getContentPane().add(btnMostrarVentas, new org.netbeans.lib.awtextra.AbsoluteConstraints(460, 0, -1, -1));
+
+        jLabel9.setText("TOTALES");
+        formSalidaPorVentas.getContentPane().add(jLabel9, new org.netbeans.lib.awtextra.AbsoluteConstraints(760, 40, -1, -1));
+
+        jLabel10.setText("ENTRADA GENERAL");
+        formSalidaPorVentas.getContentPane().add(jLabel10, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 30, -1, -1));
+
+        jLabel11.setText("ENTRADA GENERAL 02");
+        formSalidaPorVentas.getContentPane().add(jLabel11, new org.netbeans.lib.awtextra.AbsoluteConstraints(380, 30, -1, -1));
+
+        jLabel12.setText("CAJA GENERAL 01");
+        formSalidaPorVentas.getContentPane().add(jLabel12, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 290, -1, -1));
 
         formInventarioInicial.getContentPane().setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
-        setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
-        getContentPane().setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+        tblInventarioInicial.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+                {null, null, null, null},
+                {null, null, null, null},
+                {null, null, null, null},
+                {null, null, null, null}
+            },
+            new String [] {
+                "Title 1", "Title 2", "Title 3", "Title 4"
+            }
+        ));
+        jScrollPane11.setViewportView(tblInventarioInicial);
 
-        jLabel2.setFont(new java.awt.Font("Arial", 0, 12)); // NOI18N
-        jLabel2.setText("TOTAL JARRAS ROTAS");
-        getContentPane().add(jLabel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(220, 510, -1, -1));
+        formInventarioInicial.getContentPane().add(jScrollPane11, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 30, -1, -1));
 
-        btnTraslado.setFont(new java.awt.Font("Arial", 0, 12)); // NOI18N
-        btnTraslado.setText("TRASLADOS");
-        getContentPane().add(btnTraslado, new org.netbeans.lib.awtextra.AbsoluteConstraints(180, 10, 160, 60));
+        jLabel4.setText("INVENTARIO INICAL");
+        formInventarioInicial.getContentPane().add(jLabel4, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 10, -1, -1));
 
-        btnRequerimiento.setFont(new java.awt.Font("Arial", 0, 12)); // NOI18N
-        btnRequerimiento.setText("REQUERIMIENTOS");
-        btnRequerimiento.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                btnRequerimientoActionPerformed(evt);
+        formProductosSinRecogerRotos.getContentPane().setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+
+        tblBuscarProductoSinRecoger = new javax.swing.JTable(){
+            public boolean isCellEditable(int rowIndex, int colIndex){
+                return false;
+            }
+        };
+        tblBuscarProductoSinRecoger.setFont(new java.awt.Font("Arial", 0, 10)); // NOI18N
+        tblBuscarProductoSinRecoger.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+                {null, null, null, null},
+                {null, null, null, null},
+                {null, null, null, null},
+                {null, null, null, null}
+            },
+            new String [] {
+                "Title 1", "Title 2", "Title 3", "Title 4"
+            }
+        ));
+        tblBuscarProductoSinRecoger.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                tblBuscarProductoSinRecogerMouseClicked(evt);
             }
         });
-        getContentPane().add(btnRequerimiento, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 10, 160, 60));
+        jScrollPane6.setViewportView(tblBuscarProductoSinRecoger);
 
-        jTextField1.setFont(new java.awt.Font("Arial", 0, 12)); // NOI18N
-        getContentPane().add(jTextField1, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 530, 180, 30));
+        formProductosSinRecogerRotos.getContentPane().add(jScrollPane6, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 50, -1, 220));
 
-        jTextField2.setFont(new java.awt.Font("Arial", 0, 12)); // NOI18N
-        getContentPane().add(jTextField2, new org.netbeans.lib.awtextra.AbsoluteConstraints(220, 530, 180, 30));
+        btnBuscarProductoSinRecoger.setFont(new java.awt.Font("Arial", 0, 12)); // NOI18N
+        btnBuscarProductoSinRecoger.setText("Buscar");
+        formProductosSinRecogerRotos.getContentPane().add(btnBuscarProductoSinRecoger, new org.netbeans.lib.awtextra.AbsoluteConstraints(390, 10, -1, 30));
+
+        txtBuscarProducto.setFont(new java.awt.Font("Arial", 0, 12)); // NOI18N
+        txtBuscarProducto.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyReleased(java.awt.event.KeyEvent evt) {
+                txtBuscarProductoKeyReleased(evt);
+            }
+        });
+        formProductosSinRecogerRotos.getContentPane().add(txtBuscarProducto, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 10, 350, 30));
+
+        btnSeleccionarProductoSinRecoger.setFont(new java.awt.Font("Arial", 0, 12)); // NOI18N
+        btnSeleccionarProductoSinRecoger.setText("SELECCIONAR");
+        btnSeleccionarProductoSinRecoger.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnSeleccionarProductoSinRecogerActionPerformed(evt);
+            }
+        });
+        formProductosSinRecogerRotos.getContentPane().add(btnSeleccionarProductoSinRecoger, new org.netbeans.lib.awtextra.AbsoluteConstraints(170, 280, -1, -1));
+
+        tblProductosSinRecogerRotos = new javax.swing.JTable(){
+            public boolean isCellEditable(int rowIndex, int colIndex){
+                return false;
+            }
+        };
+        tblProductosSinRecogerRotos.setFont(new java.awt.Font("Arial", 0, 10)); // NOI18N
+        tblProductosSinRecogerRotos.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+                {null, null, null, null},
+                {null, null, null, null},
+                {null, null, null, null},
+                {null, null, null, null}
+            },
+            new String [] {
+                "Title 1", "Title 2", "Title 3", "Title 4"
+            }
+        ));
+        jScrollPane12.setViewportView(tblProductosSinRecogerRotos);
+
+        formProductosSinRecogerRotos.getContentPane().add(jScrollPane12, new org.netbeans.lib.awtextra.AbsoluteConstraints(500, 50, -1, 220));
+
+        jLabel7.setFont(new java.awt.Font("Arial", 0, 12)); // NOI18N
+        jLabel7.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        jLabel7.setText("LISTA");
+        formProductosSinRecogerRotos.getContentPane().add(jLabel7, new org.netbeans.lib.awtextra.AbsoluteConstraints(500, 30, 450, -1));
+
+        btnConfirmarProductoRotoSinRecoger.setFont(new java.awt.Font("Arial", 0, 12)); // NOI18N
+        btnConfirmarProductoRotoSinRecoger.setText("CONFIRMAR");
+        btnConfirmarProductoRotoSinRecoger.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnConfirmarProductoRotoSinRecogerActionPerformed(evt);
+            }
+        });
+        formProductosSinRecogerRotos.getContentPane().add(btnConfirmarProductoRotoSinRecoger, new org.netbeans.lib.awtextra.AbsoluteConstraints(690, 280, -1, -1));
+
+        formIngresos.getContentPane().setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+
+        tblIngresosRequerimientos.setFont(new java.awt.Font("Arial", 0, 10)); // NOI18N
+        tblIngresosRequerimientos.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+                {null, null, null, null},
+                {null, null, null, null},
+                {null, null, null, null},
+                {null, null, null, null}
+            },
+            new String [] {
+                "Title 1", "Title 2", "Title 3", "Title 4"
+            }
+        ));
+        jScrollPane9.setViewportView(tblIngresosRequerimientos);
+
+        formIngresos.getContentPane().add(jScrollPane9, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 30, 400, 260));
+
+        tblIngresosTraslados.setFont(new java.awt.Font("Arial", 0, 10)); // NOI18N
+        tblIngresosTraslados.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+                {null, null, null, null},
+                {null, null, null, null},
+                {null, null, null, null},
+                {null, null, null, null}
+            },
+            new String [] {
+                "Title 1", "Title 2", "Title 3", "Title 4"
+            }
+        ));
+        jScrollPane13.setViewportView(tblIngresosTraslados);
+
+        formIngresos.getContentPane().add(jScrollPane13, new org.netbeans.lib.awtextra.AbsoluteConstraints(420, 30, 580, 260));
+
+        jLabel14.setFont(new java.awt.Font("Arial", 1, 12)); // NOI18N
+        jLabel14.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        jLabel14.setText("TRASLADOS");
+        formIngresos.getContentPane().add(jLabel14, new org.netbeans.lib.awtextra.AbsoluteConstraints(420, 10, 580, -1));
+
+        jLabel15.setFont(new java.awt.Font("Arial", 1, 12)); // NOI18N
+        jLabel15.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        jLabel15.setText("REQUERIMIENTOS");
+        formIngresos.getContentPane().add(jLabel15, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 10, 400, -1));
+
+        btnConfirmarIngresos.setText("CONFIRMAR");
+        btnConfirmarIngresos.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnConfirmarIngresosActionPerformed(evt);
+            }
+        });
+        formIngresos.getContentPane().add(btnConfirmarIngresos, new org.netbeans.lib.awtextra.AbsoluteConstraints(880, 310, 120, -1));
+
+        setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        getContentPane().setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
         jPanel1.setBackground(new java.awt.Color(102, 102, 102));
         jPanel1.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
@@ -237,7 +514,7 @@ public class CierreBarman extends javax.swing.JFrame {
 
         jlabelu.setFont(new java.awt.Font("Arial", 0, 12)); // NOI18N
         jlabelu.setForeground(new java.awt.Color(255, 255, 255));
-        jlabelu.setText("usuario:");
+        jlabelu.setText("Usuario:");
         jPanel1.add(jlabelu, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 8, -1, -1));
 
         lblFecha.setFont(new java.awt.Font("Arial", 0, 12)); // NOI18N
@@ -247,23 +524,23 @@ public class CierreBarman extends javax.swing.JFrame {
 
         jlabelf.setFont(new java.awt.Font("Arial", 0, 12)); // NOI18N
         jlabelf.setForeground(new java.awt.Color(255, 255, 255));
-        jlabelf.setText("fecha:");
+        jlabelf.setText("Fecha:");
         jPanel1.add(jlabelf, new org.netbeans.lib.awtextra.AbsoluteConstraints(270, 8, -1, -1));
 
         jlabelh.setFont(new java.awt.Font("Arial", 0, 12)); // NOI18N
         jlabelh.setForeground(new java.awt.Color(255, 255, 255));
-        jlabelh.setText("hora:");
+        jlabelh.setText("Hora:");
         jPanel1.add(jlabelh, new org.netbeans.lib.awtextra.AbsoluteConstraints(470, 8, -1, -1));
 
         lblAlmacen.setFont(new java.awt.Font("Arial", 0, 12)); // NOI18N
         lblAlmacen.setForeground(new java.awt.Color(255, 255, 255));
         lblAlmacen.setText("____");
-        jPanel1.add(lblAlmacen, new org.netbeans.lib.awtextra.AbsoluteConstraints(780, 8, 180, -1));
+        jPanel1.add(lblAlmacen, new org.netbeans.lib.awtextra.AbsoluteConstraints(740, 10, 180, -1));
 
         jlabelh1.setFont(new java.awt.Font("Arial", 0, 12)); // NOI18N
         jlabelh1.setForeground(new java.awt.Color(255, 255, 255));
-        jlabelh1.setText("almacen:");
-        jPanel1.add(jlabelh1, new org.netbeans.lib.awtextra.AbsoluteConstraints(720, 8, -1, -1));
+        jlabelh1.setText("Almacen:");
+        jPanel1.add(jlabelh1, new org.netbeans.lib.awtextra.AbsoluteConstraints(680, 10, -1, -1));
 
         txtHora.setEditable(false);
         txtHora.setBackground(new java.awt.Color(102, 102, 102));
@@ -272,95 +549,684 @@ public class CierreBarman extends javax.swing.JFrame {
         txtHora.setBorder(null);
         jPanel1.add(txtHora, new org.netbeans.lib.awtextra.AbsoluteConstraints(510, 8, 160, -1));
 
-        getContentPane().add(jPanel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 660, 1160, 30));
+        getContentPane().add(jPanel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 700, 1090, 30));
 
+        jLabel3.setFont(new java.awt.Font("Arial", 1, 12)); // NOI18N
+        jLabel3.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        jLabel3.setText("VENTAS TOTALES");
+        getContentPane().add(jLabel3, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 320, 540, 20));
+
+        tblVentas.setFont(new java.awt.Font("Arial", 0, 10)); // NOI18N
+        tblVentas.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+                {null, null, null, null},
+                {null, null, null, null},
+                {null, null, null, null},
+                {null, null, null, null}
+            },
+            new String [] {
+                "Title 1", "Title 2", "Title 3", "Title 4"
+            }
+        ));
+        jScrollPane5.setViewportView(tblVentas);
+
+        getContentPane().add(jScrollPane5, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 340, 540, 330));
+
+        jButton4.setText("CERRAR INVENTARIO");
+        jButton4.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton4ActionPerformed(evt);
+            }
+        });
+        getContentPane().add(jButton4, new org.netbeans.lib.awtextra.AbsoluteConstraints(930, 672, 150, -1));
+
+        jLabel5.setFont(new java.awt.Font("Arial", 1, 12)); // NOI18N
+        jLabel5.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        jLabel5.setText("REQUERIMIENTOS - TRASLADOS");
+        getContentPane().add(jLabel5, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 40, 540, 20));
+
+        jLabel6.setFont(new java.awt.Font("Arial", 1, 12)); // NOI18N
+        jLabel6.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        jLabel6.setText("PRODUCTOS SIN RECOGER");
+        getContentPane().add(jLabel6, new org.netbeans.lib.awtextra.AbsoluteConstraints(540, 180, 540, 20));
+
+        tblStockFinal.setFont(new java.awt.Font("Arial", 0, 10)); // NOI18N
+        tblStockFinal.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+                {null, null, null, null},
+                {null, null, null, null},
+                {null, null, null, null},
+                {null, null, null, null}
+            },
+            new String [] {
+                "Title 1", "Title 2", "Title 3", "Title 4"
+            }
+        ));
+        jScrollPane10.setViewportView(tblStockFinal);
+
+        getContentPane().add(jScrollPane10, new org.netbeans.lib.awtextra.AbsoluteConstraints(540, 340, 540, 330));
+        getContentPane().add(jSeparator1, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 670, 1080, 10));
+
+        btnSalidaPorVentas.setBackground(new java.awt.Color(0, 153, 255));
         btnSalidaPorVentas.setFont(new java.awt.Font("Arial", 0, 12)); // NOI18N
+        btnSalidaPorVentas.setForeground(new java.awt.Color(255, 255, 255));
         btnSalidaPorVentas.setText("SALIDAS POR VENTAS");
         btnSalidaPorVentas.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 btnSalidaPorVentasActionPerformed(evt);
             }
         });
-        getContentPane().add(btnSalidaPorVentas, new org.netbeans.lib.awtextra.AbsoluteConstraints(350, 10, 170, 60));
+        getContentPane().add(btnSalidaPorVentas, new org.netbeans.lib.awtextra.AbsoluteConstraints(180, 0, 180, 40));
 
-        btnInventarioInicial.setFont(new java.awt.Font("Arial", 0, 12)); // NOI18N
-        btnInventarioInicial.setText("INVENTARIO INICIAL");
-        btnInventarioInicial.addActionListener(new java.awt.event.ActionListener() {
+        btnProdSinRecog.setBackground(new java.awt.Color(0, 153, 255));
+        btnProdSinRecog.setFont(new java.awt.Font("Arial", 0, 10)); // NOI18N
+        btnProdSinRecog.setForeground(new java.awt.Color(255, 255, 255));
+        btnProdSinRecog.setText("PRODUCTOS SIN RECOGER");
+        btnProdSinRecog.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                btnInventarioInicialActionPerformed(evt);
+                btnProdSinRecogActionPerformed(evt);
             }
         });
-        getContentPane().add(btnInventarioInicial, new org.netbeans.lib.awtextra.AbsoluteConstraints(530, 10, 160, 60));
+        getContentPane().add(btnProdSinRecog, new org.netbeans.lib.awtextra.AbsoluteConstraints(540, 0, 180, 40));
 
-        jLabel3.setFont(new java.awt.Font("Arial", 0, 12)); // NOI18N
-        jLabel3.setText("TOTAL JARRAS DESPACHADAS");
-        getContentPane().add(jLabel3, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 510, -1, -1));
+        btnVolver.setBackground(new java.awt.Color(255, 51, 51));
+        btnVolver.setFont(new java.awt.Font("Arial", 0, 12)); // NOI18N
+        btnVolver.setForeground(new java.awt.Color(255, 255, 255));
+        btnVolver.setText("VOLVER");
+        btnVolver.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnVolverActionPerformed(evt);
+            }
+        });
+        getContentPane().add(btnVolver, new org.netbeans.lib.awtextra.AbsoluteConstraints(900, 0, 180, 40));
+
+        btnConfirmarTotalBarra.setFont(new java.awt.Font("Arial", 0, 12)); // NOI18N
+        btnConfirmarTotalBarra.setText("CONFIRMAR");
+        btnConfirmarTotalBarra.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnConfirmarTotalBarraActionPerformed(evt);
+            }
+        });
+        getContentPane().add(btnConfirmarTotalBarra, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 672, -1, -1));
+
+        btnIngresos.setBackground(new java.awt.Color(0, 153, 255));
+        btnIngresos.setFont(new java.awt.Font("Arial", 0, 12)); // NOI18N
+        btnIngresos.setForeground(new java.awt.Color(255, 255, 255));
+        btnIngresos.setText("INGRESOS");
+        btnIngresos.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnIngresosActionPerformed(evt);
+            }
+        });
+        getContentPane().add(btnIngresos, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 180, 40));
+
+        tblTotalIngresos.setFont(new java.awt.Font("Arial", 0, 10)); // NOI18N
+        tblTotalIngresos.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+                {null, null, null, null},
+                {null, null, null, null},
+                {null, null, null, null},
+                {null, null, null, null}
+            },
+            new String [] {
+                "Title 1", "Title 2", "Title 3", "Title 4"
+            }
+        ));
+        jScrollPane14.setViewportView(tblTotalIngresos);
+
+        getContentPane().add(jScrollPane14, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 60, 540, 260));
+
+        btnProductosRotos.setBackground(new java.awt.Color(0, 153, 255));
+        btnProductosRotos.setFont(new java.awt.Font("Arial", 0, 12)); // NOI18N
+        btnProductosRotos.setForeground(new java.awt.Color(255, 255, 255));
+        btnProductosRotos.setText("PRODUCTOS ROTOS");
+        btnProductosRotos.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnProductosRotosActionPerformed(evt);
+            }
+        });
+        getContentPane().add(btnProductosRotos, new org.netbeans.lib.awtextra.AbsoluteConstraints(360, 0, 180, 40));
+
+        tblProductoSinRecoger.setFont(new java.awt.Font("Arial", 0, 10)); // NOI18N
+        tblProductoSinRecoger.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+                {null, null, null, null},
+                {null, null, null, null},
+                {null, null, null, null},
+                {null, null, null, null}
+            },
+            new String [] {
+                "Title 1", "Title 2", "Title 3", "Title 4"
+            }
+        ));
+        jScrollPane15.setViewportView(tblProductoSinRecoger);
+
+        getContentPane().add(jScrollPane15, new org.netbeans.lib.awtextra.AbsoluteConstraints(540, 200, 540, 120));
+
+        jLabel13.setBackground(new java.awt.Color(255, 255, 255));
+        jLabel13.setFont(new java.awt.Font("Arial", 1, 12)); // NOI18N
+        jLabel13.setForeground(new java.awt.Color(204, 0, 0));
+        jLabel13.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        jLabel13.setText("INVENTARIO FINAL");
+        getContentPane().add(jLabel13, new org.netbeans.lib.awtextra.AbsoluteConstraints(540, 320, 540, 20));
+
+        jLabel16.setFont(new java.awt.Font("Arial", 1, 12)); // NOI18N
+        jLabel16.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        jLabel16.setText("PRODUCTOS ROTOS");
+        getContentPane().add(jLabel16, new org.netbeans.lib.awtextra.AbsoluteConstraints(540, 40, 540, 20));
+
+        tblProductoRotos.setFont(new java.awt.Font("Arial", 0, 10)); // NOI18N
+        tblProductoRotos.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+                {null, null, null, null},
+                {null, null, null, null},
+                {null, null, null, null},
+                {null, null, null, null}
+            },
+            new String [] {
+                "Title 1", "Title 2", "Title 3", "Title 4"
+            }
+        ));
+        jScrollPane16.setViewportView(tblProductoRotos);
+
+        getContentPane().add(jScrollPane16, new org.netbeans.lib.awtextra.AbsoluteConstraints(540, 60, 540, 120));
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
     private void btnSalidaPorVentasActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSalidaPorVentasActionPerformed
         formSalidaPorVentas.setVisible(true);
-        formSalidaPorVentas.setBounds(300, 200, 1281, 722);
+        formSalidaPorVentas.setBounds(300, 200, 1250, 606);
     }//GEN-LAST:event_btnSalidaPorVentasActionPerformed
 
-    private void cbEntradaGeneral2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cbEntradaGeneral2ActionPerformed
-        try {
-            if (cbEntradaGeneral2.isSelected()) {
-                LlenarTablaEntradaGeneral2(681);
-                //calculos();
-            } else {
-                jcEntradaGneral2.LimpiarTabla();
-            }
-        } catch (Exception e) {
-            System.out.println("Error: " + e.getMessage());
-        }
-
-    }//GEN-LAST:event_cbEntradaGeneral2ActionPerformed
-
-    private void cbEntradaGeneralActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cbEntradaGeneralActionPerformed
-        try {
-            if (cbEntradaGeneral.isSelected()) {
-                LlenarTablaEntradaGeneral(693);
-                //calculos();
-            } else {
-                jcEntradaGneral.LimpiarTabla();
-            }
-        } catch (Exception e) {
-            System.out.println("Error: " + e.getMessage());
-        }
-    }//GEN-LAST:event_cbEntradaGeneralActionPerformed
-
     private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton3ActionPerformed
+        jcTotal.LimpiarTabla();
         calculos();
         fusionarTablas();
     }//GEN-LAST:event_jButton3ActionPerformed
 
-    private void cbCajaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cbCajaActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_cbCajaActionPerformed
+    private void btnProdSinRecogActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnProdSinRecogActionPerformed
+        tipoProducto = 2; //2=producto sin recoger
+        formProductosSinRecogerRotos.setVisible(true);
+        formProductosSinRecogerRotos.setBounds(400, 350, 1022, 354);
+        formProductosSinRecogerRotos.setTitle("PRODUCTOS SIN RECOGER");
+        jcBuscarProducto.LimpiarTabla();
+        jcProductoSinRecoger.LimpiarTabla();
+    }//GEN-LAST:event_btnProdSinRecogActionPerformed
 
-    private void btnInventarioInicialActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnInventarioInicialActionPerformed
+    private void jButton4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton4ActionPerformed
         int dialogButton = JOptionPane.YES_NO_OPTION;
-        int dialogResult = JOptionPane.showConfirmDialog(null, "¿Desea aperturar el inventario de"+lblAlmacen.getText()+" ?", "Warning", dialogButton);
+        int dialogResult = JOptionPane.showConfirmDialog(null, "¿Desea cerrar el inventario de" + lblAlmacen.getText() + " ?", "Warning", dialogButton);
         if (dialogResult == JOptionPane.YES_OPTION) {
             System.out.println("SI");
+            try {
+                int c = 0;
+                int y = 0;
+                int idFlujoInventario = new FlujoInventarioDAO().getIdFlujo(idUsuario, almacen.getId());                
+                //registra productos rotos
+                for (int i = 0; i < tblProductoRotos.getRowCount(); i++) {
+                    int idProducto = Integer.parseInt(tblProductoRotos.getValueAt(i, 0).toString());
+                    ProductoPresentacion pp = new ProductoPresentacionDAO().Obtener(idProducto);
+                    ProductoRoto pr = new ProductoRoto();
+                    
+                    pr.setIdproductopresentacion(pp.getIdProductoPresentacion());
+                    pr.setIdflujoinventario(idFlujoInventario);
+                    pr.setCantidad(Double.parseDouble(tblProductoRotos.getValueAt(i, 3).toString()));
+                    pr.setPrecio(pp.getPrecio());
+                    
+                    ProductoRotoDAO prdao = new ProductoRotoDAO();
+                    
+                    if (prdao.Registrar(pr)) {
+                        y++;
+                    }
+                }
+                //registra producto sin recoger
+                for (int i = 0; i < tblProductoSinRecoger.getRowCount(); i++) {
+                    int idProducto = Integer.parseInt(tblProductoSinRecoger.getValueAt(i, 0).toString());
+                    ProductoPresentacion pp = new ProductoPresentacionDAO().Obtener(idProducto);
+                    ProductoSinRecoger p = new ProductoSinRecoger();
+
+                    p.setIdproductopresentacion(pp.getIdProductoPresentacion());
+                    p.setIdflujoinventario(idFlujoInventario);
+                    p.setCantidad(Double.parseDouble(tblProductoSinRecoger.getValueAt(i, 3).toString()));
+                    p.setPrecio(pp.getPrecio());
+
+                    ProductoSinRecogerDAO prdao = new ProductoSinRecogerDAO();
+
+                    if (prdao.Registrar(p)) {
+                        c++;
+                    }
+                }
+
+                if (c > 0 && y > 0) {
+                    System.out.println("SE REGISTRARON LOS PRODUCTOS ROTOS y SIN RECOGER");
+                }
+                
+                //REGISTRAR INVENTARIO FINAL
+                
+                
+                
+            } catch (Exception e) {
+                System.out.println("Error: " + e.getMessage());
+            }
+            //registrar productos sin recoger
             //registrar inventario
-            
-        }else{
+
+        } else {
             System.out.println("NO");
         }
-    }//GEN-LAST:event_btnInventarioInicialActionPerformed
+    }//GEN-LAST:event_jButton4ActionPerformed
 
-    private void btnRequerimientoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnRequerimientoActionPerformed
+    private void btnConfirmarTotalActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnConfirmarTotalActionPerformed
+        //validaciones
+        int filas = tblTotal.getRowCount();
+        if (filas > 0) {
+            salidaPorVenta = false;
+            btnSalidaPorVentas.setEnabled(salidaPorVenta);
+            //confirmar ventas totales
+            Object datos[] = new Object[4];
+
+            for (int i = 0; i < tblTotal.getRowCount(); i++) {
+                datos[0] = tblTotal.getValueAt(i, 0).toString();
+                datos[1] = tblTotal.getValueAt(i, 1).toString();
+                datos[2] = tblTotal.getValueAt(i, 2).toString();
+                datos[3] = tblTotal.getValueAt(i, 3).toString();
+
+                jcTotalVentas.getModelo().addRow(datos);
+            }
+
+            tblVentas.setModel(jcTotalVentas.getModelo());
+
+            formSalidaPorVentas.dispose();
+        } else {
+            JOptionPane.showMessageDialog(getRootPane(), "LA TABLA TOTALES ESTA VACIA");
+        }
+    }//GEN-LAST:event_btnConfirmarTotalActionPerformed
+
+    private void txtBuscarProductoKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txtBuscarProductoKeyReleased
         try {
-            VistaRequerimientoBarman req = new VistaRequerimientoBarman(lblUsuario.getText(), lblAlmacen.getText());
-            req.setVisible(true);
-            dispose();
+            jcBuscarProducto.LimpiarTabla();
+            LlenarTablaBuscarProductos(txtBuscarProducto.getText().toUpperCase());
         } catch (Exception ex) {
+            System.out.println("Error: " + ex.getMessage());
+        }
+    }//GEN-LAST:event_txtBuscarProductoKeyReleased
+
+    private void btnSeleccionarProductoSinRecogerActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSeleccionarProductoSinRecogerActionPerformed
+        int fila = tblBuscarProductoSinRecoger.getSelectedRow();
+        double cantidad = Double.parseDouble(JOptionPane.showInputDialog("CANTIDAD"));
+        try {
+            if (fila >= 0) {
+                if (cantidad > 0) {
+
+                    Object datos[] = new Object[4];
+                    datos[0] = tblBuscarProductoSinRecoger.getValueAt(fila, 0).toString();
+                    datos[1] = tblBuscarProductoSinRecoger.getValueAt(fila, 1).toString();
+                    datos[2] = tblBuscarProductoSinRecoger.getValueAt(fila, 2).toString();
+                    datos[3] = cantidad;
+
+                    jcProductoSinRecoger.getModelo().addRow(datos);
+                    tblProductosSinRecogerRotos.setModel(jcProductoSinRecoger.getModelo());
+
+                } else {
+                    JOptionPane.showMessageDialog(getRootPane(), "INDIQUE UNA CANTIDAD VALIDA");
+                }
+            } else {
+                JOptionPane.showMessageDialog(getRootPane(), "SELECCIONE UN PRODUCTO");
+            }
+        } catch (Exception e) {
+            System.out.println("Error: " + e.getMessage());
+        }
+    }//GEN-LAST:event_btnSeleccionarProductoSinRecogerActionPerformed
+
+    private void tblBuscarProductoSinRecogerMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tblBuscarProductoSinRecogerMouseClicked
+
+        if (evt.getClickCount() == 2) {
+            btnSeleccionarProductoSinRecoger.doClick();
+        }
+    }//GEN-LAST:event_tblBuscarProductoSinRecogerMouseClicked
+
+    private void btnConfirmarProductoRotoSinRecogerActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnConfirmarProductoRotoSinRecogerActionPerformed
+        formProductosAdd(tipoProducto);
+    }//GEN-LAST:event_btnConfirmarProductoRotoSinRecogerActionPerformed
+
+    private void btnMostrarVentasActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnMostrarVentasActionPerformed
+        if (jdcFechaInicioInventario.getDate() != null) {
+            try {
+                String fecha = new FormatoFechas().FormatoFec(jdcFechaInicioInventario);
+                System.out.println("La fecha es: " + fecha);
+
+                int idflujocajaJaime = new FlujoInventarioDAO().getIdFlujoCaja(fecha, 1);//1= idcaja de jaime
+                LlenarTablaEntradaGeneral(idflujocajaJaime);
+
+                int idflujocajaCaja01 = new FlujoInventarioDAO().getIdFlujoCaja(fecha, 3);//3= idcaja caja general
+                LlenarTablaCajaGeneral(idflujocajaCaja01);
+
+                int idflujocajaCaja02 = new FlujoInventarioDAO().getIdFlujoCaja(fecha, 4);//4= idcaja caja general2
+                LlenarTablaCajaGeneral2(idflujocajaCaja02);
+
+                int idflujocajaAlejandro = new FlujoInventarioDAO().getIdFlujoCaja(fecha, 6);//6 = idcaja de aljeandro
+                LlenarTablaEntradaGeneral2(idflujocajaAlejandro);
+
+            } catch (Exception ex) {
+                Logger.getLogger(CierreBarman.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        } else {
+            JOptionPane.showMessageDialog(getRootPane(), "DEBE INDICAR LA FECHA DE APERTURA DE INVENTARIO");
+        }
+
+    }//GEN-LAST:event_btnMostrarVentasActionPerformed
+
+    private void btnIngresosActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnIngresosActionPerformed
+        jcRequerimiento.LimpiarTabla();
+        jcTraslado.LimpiarTabla();
+
+        formIngresos.setVisible(true);
+        formIngresos.setBounds(400, 200, 1100, 415);
+        //cargar requerimientos - traslados
+        try {
+            cargarRequerimientos(almacen.getId());
+            cargarTraslados(almacen.getId());
+        } catch (SQLException ex) {
             Logger.getLogger(CierreBarman.class.getName()).log(Level.SEVERE, null, ex);
         }
-    }//GEN-LAST:event_btnRequerimientoActionPerformed
+
+
+    }//GEN-LAST:event_btnIngresosActionPerformed
+
+    private void btnVolverActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnVolverActionPerformed
+        try {
+            Menu m = new Menu(lblUsuario.getText(), lblAlmacen.getText());
+            m.setVisible(true);
+            dispose();
+        } catch (Exception e) {
+            System.out.println("Error: " + e.getMessage());
+        }
+    }//GEN-LAST:event_btnVolverActionPerformed
+
+    private void btnProductosRotosActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnProductosRotosActionPerformed
+        tipoProducto = 1;//1=producto roto
+        formProductosSinRecogerRotos.setVisible(true);
+        formProductosSinRecogerRotos.setBounds(400, 350, 1022, 354);
+        formProductosSinRecogerRotos.setTitle("PRODUCTOS ROTOS");
+        jcBuscarProducto.LimpiarTabla();
+        jcProductoSinRecoger.LimpiarTabla();
+    }//GEN-LAST:event_btnProductosRotosActionPerformed
+
+    private void btnConfirmarIngresosActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnConfirmarIngresosActionPerformed
+        //sumar las tablas
+        int filasRequerimientos = tblIngresosRequerimientos.getRowCount();
+        int filasTraslados = tblIngresosTraslados.getRowCount();
+
+        Object datosReq[] = new Object[filasRequerimientos];
+        Object datosTras[] = new Object[filasTraslados];
+
+        List<String> listaReq = new ArrayList<>();
+        List<String> listaTras = new ArrayList<>();
+
+        //llenando el arreglo datosReq[]
+        for (int i = 0; i < filasRequerimientos; i++) {
+            datosReq[i] = tblIngresosRequerimientos.getValueAt(i, 1).toString();
+        }
+        //llenando el arreglo datosTras[]
+        for (int i = 0; i < filasTraslados; i++) {
+            datosTras[i] = tblIngresosTraslados.getValueAt(i, 1).toString();
+        }
+
+        //agrega los elementos del arreglo datos[] a la lista1
+        for (Object x : datosReq) {
+            listaReq.add(x.toString());
+        }
+        //agrega los elementos del arreglo datos2[] a la lista2
+        for (Object y : datosTras) {
+            listaTras.add(y.toString());
+        }
+
+        Iterator<String> it = listaTras.iterator();
+
+        while (it.hasNext()) {
+            if (listaReq.contains(it.next())) {
+                it.remove();
+            }
+        }
+
+        listaReq.addAll(listaTras);
+
+        System.out.println("Lista Traslados: " + listaTras);
+        System.out.println("Lista Requerimientos: " + listaReq);
+
+        //suma las cantidades
+        Object datosY[] = new Object[4];
+        if (filasRequerimientos >= 0) {//si hay elementos en requerimientos
+            for (int i = 0; i < filasRequerimientos; i++) {//recorre la primera tabla
+                double cantidad = Double.parseDouble(tblIngresosRequerimientos.getValueAt(i, 3).toString());
+                datosY[0] = tblIngresosRequerimientos.getValueAt(i, 0).toString();
+                datosY[1] = tblIngresosRequerimientos.getValueAt(i, 1).toString();
+                datosY[2] = tblIngresosRequerimientos.getValueAt(i, 2).toString();
+                for (int j = 0; j < filasTraslados; j++) {//recorre la segunda tabla
+                    if (tblIngresosRequerimientos.getValueAt(i, 1).equals(tblIngresosTraslados.getValueAt(j, 1).toString())) {//si es el mismo producto
+                        cantidad += Double.parseDouble(tblIngresosTraslados.getValueAt(j, 5).toString());
+                    }
+                }
+                datosY[3] = cantidad;
+                jcIngresos.getModelo().addRow(datosY);
+            }
+        }
+
+        //combina las tablas
+        Object datosX[] = new Object[4];
+        for (int i = 0; i < listaTras.size(); i++) {
+            datosX[0] = tblIngresosTraslados.getValueAt(i, 0).toString();
+            datosX[1] = tblIngresosTraslados.getValueAt(i, 1).toString();
+            datosX[2] = tblIngresosTraslados.getValueAt(i, 2).toString();
+            datosX[3] = tblIngresosTraslados.getValueAt(i, 5).toString();
+            jcIngresos.getModelo().addRow(datosX);
+        }
+        tblTotalIngresos.setModel(jcIngresos.getModelo());
+
+        if (tblTotalIngresos.getRowCount() >= 0) {
+            ingresos = false;
+            btnIngresos.setEnabled(ingresos);
+        }
+
+        formIngresos.dispose();
+    }//GEN-LAST:event_btnConfirmarIngresosActionPerformed
+
+    private void btnConfirmarTotalBarraActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnConfirmarTotalBarraActionPerformed
+
+        // sumar y restar las tablas respectivas
+        int filasTotalIngresos = tblTotalIngresos.getRowCount();
+        int filasVentasTotales = tblVentas.getRowCount();
+        int filasProdRotos = tblProductoRotos.getRowCount();
+        int filasProdSR = tblProductoSinRecoger.getRowCount();
+        int filasStockFinal = tblStockFinal.getRowCount();
+
+        Object datos[] = new Object[4];
+
+        if (filasTotalIngresos >= 0 || filasVentasTotales >= 0) {//si hay elementos en ambas tablas
+            for (int i = 0; i < filasTotalIngresos; i++) {//recorre la tabla de requerimientos-traslados
+                double cantidad = Double.parseDouble(tblTotalIngresos.getValueAt(i, 3).toString());
+                datos[0] = tblTotalIngresos.getValueAt(i, 0).toString();
+                datos[1] = tblTotalIngresos.getValueAt(i, 1).toString();
+                datos[2] = tblTotalIngresos.getValueAt(i, 2).toString();
+                for (int j = 0; j < filasStockFinal; j++) {//recorre la tabla de stock final
+                    if (tblTotalIngresos.getValueAt(i, 1).toString().equals(tblStockFinal.getValueAt(j, 1).toString())) {//si es el mismo producto
+                        cantidad += Double.parseDouble(tblStockFinal.getValueAt(j, 3).toString());
+                    }
+                }
+
+                for (int j = 0; j < filasProdSR; j++) {//recorre la tabla productos sin recoger
+                    if (tblTotalIngresos.getValueAt(i, 1).toString().equals(tblProductoSinRecoger.getValueAt(j, 1).toString())) {//si es el mismo producto
+                        cantidad += Double.parseDouble(tblProductoSinRecoger.getValueAt(j, 3).toString());
+                    }
+                }
+
+                for (int j = 0; j < filasStockFinal; j++) {//recorre la tabla stock final
+                    if (tblTotalIngresos.getValueAt(i, 1).toString().equals(tblStockFinal.getValueAt(j, 1).toString())) {//si es el mismo producto
+                        cantidad += Double.parseDouble(tblStockFinal.getValueAt(j, 3).toString());
+                    }
+                }
+                
+                for (int j = 0; j < filasVentasTotales; j++) {//recorre la tabla ventas totales
+                    if (tblTotalIngresos.getValueAt(i, 1).toString().equals(tblVentas.getValueAt(j, 1).toString())) {//si es el mismo producto
+                        cantidad -= Double.parseDouble(tblVentas.getValueAt(j, 3).toString());
+                    }
+                }
+                
+                for (int j = 0; j < filasProdRotos; j++) {//recorre la tabla productos rotos
+                    if (tblTotalIngresos.getValueAt(i, 1).toString().equals(tblProductoRotos.getValueAt(j, 1).toString())) {//si es el mismo producto
+                        cantidad -= Double.parseDouble(tblProductoRotos.getValueAt(j, 3).toString());
+                    }
+                }
+
+                datos[3] = cantidad;
+
+                jcStockFinal.getModelo().addRow(datos);
+            }
+            //tblStockFinal.setModel(jcStockFinal.getModelo());
+        }
+//        fusionar las tablas
+        Object totalIngresos[] = new Object[filasTotalIngresos];
+        Object ventasTotales[] = new Object[filasVentasTotales];
+        Object prodRotos[] = new Object[filasProdRotos];
+        Object prodSR[] = new Object[filasProdSR];
+        Object stockFinal[] = new Object[filasStockFinal];
+
+        List<String> lstTotalIngresos = new ArrayList<>();
+        List<String> lstVentasTotales = new ArrayList<>();
+        List<String> lstProdRotos = new ArrayList<>();
+        List<String> lstProdSR = new ArrayList<>();
+        List<String> lstStockFinal = new ArrayList<>();
+
+        //llenando el arreglo totalIngresos[] con la columna nombre
+        for (int i = 0; i < filasTotalIngresos; i++) {
+            totalIngresos[i] = tblTotalIngresos.getValueAt(i, 1).toString();
+        }
+        //llenando el arreglo ventasTotales[]
+        for (int i = 0; i < filasVentasTotales; i++) {
+            ventasTotales[i] = tblVentas.getValueAt(i, 1).toString();
+        }
+        //llenando el arreglo prodRotos[]
+        for (int i = 0; i < filasProdRotos; i++) {
+            prodRotos[i] = tblProductoRotos.getValueAt(i, 1).toString();
+        }
+        //llenando el arreglo prodSR[]
+        for (int i = 0; i < filasProdSR; i++) {
+            prodSR[i] = tblProductoSinRecoger.getValueAt(i, 1).toString();
+        }
+        //llenando el arreglo stockFinal[]
+        for (int i = 0; i < filasStockFinal; i++) {
+            stockFinal[i] = tblStockFinal.getValueAt(i, 1).toString();
+        }
+
+        //agrega los elementos del arreglo totalIngresos[] a la lstTotalIngresos
+        for (Object x : totalIngresos) {
+            lstTotalIngresos.add(x.toString());
+        }
+        //agrega los elementos del arreglo ventasTotales[] a la lstVentasTotales
+        for (Object y : ventasTotales) {
+            lstVentasTotales.add(y.toString());
+        }
+        //agrega los elementos del arreglo prodRotos[] a la lstProdRotos
+        for (Object z : prodRotos) {
+            lstProdRotos.add(z.toString());
+        }
+
+        //agrega los elementos del arreglo prodSR[] a la lstProdSR
+        for (Object m : prodSR) {
+            lstProdSR.add(m.toString());
+        }
+
+        //agrega los elementos del arreglo stockFinal[] a la lstStockFinal
+        for (Object o : stockFinal) {
+            lstStockFinal.add(o.toString());
+        }
+
+        Iterator<String> it = lstVentasTotales.iterator();
+
+        while (it.hasNext()) {
+            if (lstTotalIngresos.contains(it.next())) {
+                it.remove();
+            }
+        }
+
+        lstTotalIngresos.addAll(lstVentasTotales); //agrega todos los elementos de lstVentasTotales que no estan en lstTotalIngresos
+
+        Iterator<String> iterador = lstProdRotos.iterator();
+        while (iterador.hasNext()) {
+            if (lstTotalIngresos.contains(iterador.next())) {
+                iterador.remove();
+            }
+        }
+
+        lstTotalIngresos.addAll(lstProdRotos); //agrega todos los elementos de lstProdRotos que no estan en lstTotalIngresos
+
+        Iterator<String> iterador2 = lstProdSR.iterator();
+        while (iterador2.hasNext()) {
+            if (lstTotalIngresos.contains(iterador2.next())) {
+                iterador2.remove();
+            }
+        }
+
+        lstTotalIngresos.addAll(lstProdSR);
+
+        Iterator<String> iterador3 = lstStockFinal.iterator();
+        while (iterador3.hasNext()) {
+            if (lstTotalIngresos.contains(iterador3.next())) {
+                iterador3.remove();
+            }
+        }
+
+        lstTotalIngresos.addAll(lstStockFinal);
+
+        System.out.println(lstTotalIngresos);//funciona bien hasta aqui
+
+        Object total[] = new Object[4];
+
+        System.out.println("lista de ventas totales " + lstVentasTotales);
+
+        for (int j = 0; j < filasVentasTotales; j++) {//recorre la tabla de total ventas
+            for (int i = 0; i < lstVentasTotales.size(); i++) {
+                if (tblVentas.getValueAt(j, 1).toString().equals(lstVentasTotales.get(i).toString())) {
+                    total[0] = tblVentas.getValueAt(i, 0).toString();
+                    total[1] = tblVentas.getValueAt(i, 1).toString();
+                    total[2] = tblVentas.getValueAt(i, 2).toString();
+                    total[3] = tblVentas.getValueAt(i, 3).toString();
+                    jcStockFinal.getModelo().addRow(total);
+                }
+            }
+        }
+
+        tblStockFinal.setModel(jcStockFinal.getModelo());
+
+//        for (int i = 0; i < filasCajaGeneral; i++) {
+//
+//            for (int j = 0; j < lista3.size(); j++) {
+//                if (tblCajaGeneral.getValueAt(i, 0).toString().equals(lista3.get(j).toString())) {
+//                    total[0] = tblCajaGeneral.getValueAt(i, 0).toString();
+//                    total[1] = tblCajaGeneral.getValueAt(i, 1).toString();
+//                    total[2] = tblCajaGeneral.getValueAt(i, 2).toString();
+//                    total[3] = tblCajaGeneral.getValueAt(i, 3).toString();
+//                    jcTotal.getModelo().addRow(total);
+//                }
+//            }
+//
+//        }
+//
+//        for (int i = 0; i < filasCajaGeneral2; i++) {
+//
+//            for (int j = 0; j < lista4.size(); j++) {
+//                if (tblCajaGeneral2.getValueAt(i, 0).toString().equals(lista4.get(j).toString())) {
+//                    total[0] = tblCajaGeneral2.getValueAt(i, 0).toString();
+//                    total[1] = tblCajaGeneral2.getValueAt(i, 1).toString();
+//                    total[2] = tblCajaGeneral2.getValueAt(i, 2).toString();
+//                    total[3] = tblCajaGeneral2.getValueAt(i, 3).toString();
+//                    jcTotal.getModelo().addRow(total);
+//                }
+//            }
+//
+//        }
+    }//GEN-LAST:event_btnConfirmarTotalBarraActionPerformed
 
     /**
      * @param args the command line arguments
@@ -398,27 +1264,60 @@ public class CierreBarman extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JButton btnInventarioInicial;
-    private javax.swing.JButton btnRequerimiento;
+    private javax.swing.JButton btnBuscarProductoSinRecoger;
+    private javax.swing.JButton btnConfirmarIngresos;
+    private javax.swing.JButton btnConfirmarProductoRotoSinRecoger;
+    private javax.swing.JButton btnConfirmarTotal;
+    private javax.swing.JButton btnConfirmarTotalBarra;
+    private javax.swing.JButton btnIngresos;
+    private javax.swing.JButton btnMostrarVentas;
+    private javax.swing.JButton btnProdSinRecog;
+    private javax.swing.JButton btnProductosRotos;
     private javax.swing.JButton btnSalidaPorVentas;
-    private javax.swing.JButton btnTraslado;
-    private javax.swing.JCheckBox cbCaja;
-    private javax.swing.JCheckBox cbEntradaGeneral;
-    private javax.swing.JCheckBox cbEntradaGeneral2;
+    private javax.swing.JButton btnSeleccionarProductoSinRecoger;
+    private javax.swing.JButton btnVolver;
+    private javax.swing.JDialog formIngresos;
     private javax.swing.JDialog formInventarioInicial;
+    private javax.swing.JDialog formProductosSinRecogerRotos;
     private javax.swing.JDialog formSalidaPorVentas;
     private javax.swing.JButton jButton3;
+    private javax.swing.JButton jButton4;
     private javax.swing.JLabel jLabel1;
+    private javax.swing.JLabel jLabel10;
+    private javax.swing.JLabel jLabel11;
+    private javax.swing.JLabel jLabel12;
+    private javax.swing.JLabel jLabel13;
+    private javax.swing.JLabel jLabel14;
+    private javax.swing.JLabel jLabel15;
+    private javax.swing.JLabel jLabel16;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
+    private javax.swing.JLabel jLabel4;
+    private javax.swing.JLabel jLabel5;
+    private javax.swing.JLabel jLabel6;
+    private javax.swing.JLabel jLabel7;
+    private javax.swing.JLabel jLabel8;
+    private javax.swing.JLabel jLabel9;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JScrollPane jScrollPane10;
+    private javax.swing.JScrollPane jScrollPane11;
+    private javax.swing.JScrollPane jScrollPane12;
+    private javax.swing.JScrollPane jScrollPane13;
+    private javax.swing.JScrollPane jScrollPane14;
+    private javax.swing.JScrollPane jScrollPane15;
+    private javax.swing.JScrollPane jScrollPane16;
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JScrollPane jScrollPane3;
     private javax.swing.JScrollPane jScrollPane4;
-    private javax.swing.JTable jTable1;
-    private javax.swing.JTextField jTextField1;
-    private javax.swing.JTextField jTextField2;
+    private javax.swing.JScrollPane jScrollPane5;
+    private javax.swing.JScrollPane jScrollPane6;
+    private javax.swing.JScrollPane jScrollPane7;
+    private javax.swing.JScrollPane jScrollPane8;
+    private javax.swing.JScrollPane jScrollPane9;
+    private javax.swing.JSeparator jSeparator1;
+    private javax.swing.JTextArea jTextArea1;
+    private com.toedter.calendar.JDateChooser jdcFechaInicioInventario;
     private javax.swing.JLabel jlabelf;
     private javax.swing.JLabel jlabelh;
     private javax.swing.JLabel jlabelh1;
@@ -426,28 +1325,41 @@ public class CierreBarman extends javax.swing.JFrame {
     public javax.swing.JLabel lblAlmacen;
     public javax.swing.JLabel lblFecha;
     public javax.swing.JLabel lblUsuario;
+    private javax.swing.JTable tblBuscarProductoSinRecoger;
+    private javax.swing.JTable tblCajaGeneral;
+    private javax.swing.JTable tblCajaGeneral2;
     private javax.swing.JTable tblEntradaGeneral;
     private javax.swing.JTable tblEntradaGeneral2;
+    private javax.swing.JTable tblIngresosRequerimientos;
+    private javax.swing.JTable tblIngresosTraslados;
+    private javax.swing.JTable tblInventarioInicial;
+    private javax.swing.JTable tblProductoRotos;
+    private javax.swing.JTable tblProductoSinRecoger;
+    private javax.swing.JTable tblProductosSinRecogerRotos;
+    private javax.swing.JTable tblStockFinal;
     private javax.swing.JTable tblTotal;
+    private javax.swing.JTable tblTotalIngresos;
+    private javax.swing.JTable tblVentas;
+    private javax.swing.JTextField txtBuscarProducto;
     private javax.swing.JTextField txtHora;
     // End of variables declaration//GEN-END:variables
 
     public void LlenarTablaEntradaGeneral(int idFlujoCaja) throws Exception {
         Conexion c = new Conexion();
-        c.conectar();
-        Connection con = c.getConexion();
-        jcEntradaGneral.LimpiarTabla();
-        String datos[] = new String[4];
-        String sql = "select pp.idproductopresentacion, p.nombre, pre.descripcion, sum(ve.numCovers)\n"
-                + "    from entradageneral eg\n"
-                + "    inner join ventaentrada ve on eg.identradageneral = ve.venta_idventa\n"
-                + "    inner join productopresentacion pp on ve.idproducto = pp.idproductopresentacion\n"
-                + "    inner join producto p on pp.idproducto = p.idproducto\n"
-                + "    inner join presentacion pre on pp.idpresentacion = pre.idpresentacion\n"
-                + "    where eg.idflujocaja = " + idFlujoCaja + " \n"
-                + "    group by pp.idproductopresentacion";
         try {
-            Statement st = con.createStatement();
+            c.conectar();
+            jcEntradaGneral.LimpiarTabla();
+            String datos[] = new String[4];
+            String sql = "select pp.idproductopresentacion, p.nombre, pre.descripcion, sum(ve.numCovers)\n"
+                    + "    from entradageneral eg\n"
+                    + "    inner join ventaentrada ve on eg.identradageneral = ve.venta_idventa\n"
+                    + "    inner join productopresentacion pp on ve.idproducto = pp.idproductopresentacion\n"
+                    + "    inner join producto p on pp.idproducto = p.idproducto\n"
+                    + "    inner join presentacion pre on pp.idpresentacion = pre.idpresentacion\n"
+                    + "    where eg.idflujocaja = " + idFlujoCaja + " \n"
+                    + "    group by pp.idproductopresentacion";
+
+            Statement st = c.getConexion().createStatement();
             ResultSet rs = st.executeQuery(sql);
             while (rs.next()) {
                 datos[0] = String.valueOf(rs.getInt(1));
@@ -464,7 +1376,6 @@ public class CierreBarman extends javax.swing.JFrame {
         } catch (SQLException e) {
             JOptionPane.showMessageDialog(getRootPane(), e.getMessage());
         } finally {
-            con.close();
             c.cerrar();
         }
         new ColumnasTablas().cuatroColumnas(tblEntradaGeneral, 10, 100, 100, 10);
@@ -472,20 +1383,20 @@ public class CierreBarman extends javax.swing.JFrame {
 
     public void LlenarTablaEntradaGeneral2(int idFlujoCaja) throws Exception {
         Conexion c = new Conexion();
-        c.conectar();
-        Connection con = c.getConexion();
-        jcEntradaGneral2.LimpiarTabla();
-        String datos[] = new String[4];
-        String sql = "select pp.idproductopresentacion, p.nombre, pre.descripcion, sum(ve.numCovers) \n"
-                + "    from entradageneral2 eg\n"
-                + "    inner join ventaentrada2 ve on eg.identradageneral2 = ve.venta_idventa\n"
-                + "    inner join productopresentacion pp on ve.idproducto = pp.idproductopresentacion\n"
-                + "    inner join producto p on pp.idproducto = p.idproducto\n"
-                + "    inner join presentacion pre on pp.idpresentacion = pre.idpresentacion\n"
-                + "    where eg.idflujocaja = " + idFlujoCaja + " \n"
-                + "    group by pp.idproductopresentacion";
         try {
-            Statement st = con.createStatement();
+            c.conectar();
+            jcEntradaGneral2.LimpiarTabla();
+            String datos[] = new String[4];
+            String sql = "select pp.idproductopresentacion, p.nombre, pre.descripcion, sum(ve.numCovers) \n"
+                    + "    from entradageneral2 eg\n"
+                    + "    inner join ventaentrada2 ve on eg.identradageneral2 = ve.venta_idventa\n"
+                    + "    inner join productopresentacion pp on ve.idproducto = pp.idproductopresentacion\n"
+                    + "    inner join producto p on pp.idproducto = p.idproducto\n"
+                    + "    inner join presentacion pre on pp.idpresentacion = pre.idpresentacion\n"
+                    + "    where eg.idflujocaja = " + idFlujoCaja + " \n"
+                    + "    group by pp.idproductopresentacion";
+
+            Statement st = c.getConexion().createStatement();
             ResultSet rs = st.executeQuery(sql);
             while (rs.next()) {
                 datos[0] = String.valueOf(rs.getInt(1));
@@ -502,16 +1413,323 @@ public class CierreBarman extends javax.swing.JFrame {
         } catch (SQLException e) {
             JOptionPane.showMessageDialog(getRootPane(), e.getMessage());
         } finally {
-            con.close();
             c.cerrar();
         }
         new ColumnasTablas().cuatroColumnas(tblEntradaGeneral2, 10, 100, 100, 10);
+    }
+
+    public void LlenarTablaCajaGeneral(int idFlujoCaja) throws Exception {
+        Conexion c = new Conexion();
+        try {
+            c.conectar();
+            jcCajaGeneral.LimpiarTabla();
+            String datos[] = new String[4];
+            String sql = "select pp.idproductopresentacion, p.nombre, pre.descripcion, sum(vp.cantidad)\n"
+                    + "    from venta v\n"
+                    + "    inner join ventaproducto vp on v.idventa = vp.idventa    \n"
+                    + "    inner join productopresentacion pp on vp.idproducto = pp.idproductopresentacion\n"
+                    + "    inner join producto p on pp.idproducto = p.idproducto\n"
+                    + "    inner join presentacion pre on pp.idpresentacion = pre.idpresentacion\n"
+                    + "    where v.idflujocaja = " + idFlujoCaja + " \n"
+                    + "    group by pp.idproductopresentacion\n"
+                    + "    order by sum(vp.cantidad) desc";
+
+            Statement st = c.getConexion().createStatement();
+            ResultSet rs = st.executeQuery(sql);
+            while (rs.next()) {
+                datos[0] = String.valueOf(rs.getInt(1));
+                datos[1] = rs.getString(2);
+                datos[2] = rs.getString(3);
+                datos[3] = rs.getString(4);
+
+                jcCajaGeneral.getModelo().addRow(datos);
+            }
+            tblCajaGeneral.setModel(jcCajaGeneral.getModelo());
+
+            st.close();
+            rs.close();
+        } catch (SQLException e) {
+            JOptionPane.showMessageDialog(getRootPane(), e.getMessage());
+        } finally {
+            c.cerrar();
+        }
+        new ColumnasTablas().cuatroColumnas(tblCajaGeneral, 10, 100, 100, 10);
+    }
+
+    public void LlenarTablaCajaGeneral2(int idFlujoCaja) throws Exception {
+        Conexion c = new Conexion();
+        try {
+            c.conectar();
+            jcCajaGeneral2.LimpiarTabla();
+            String datos[] = new String[4];
+            String sql = "select pp.idproductopresentacion, p.nombre, pre.descripcion, sum(vp.cantidad)\n"
+                    + "    from venta2 v\n"
+                    + "    inner join ventaproducto2 vp on v.idventa2 = vp.idventa\n"
+                    + "    inner join productopresentacion pp on vp.idproducto = pp.idproductopresentacion\n"
+                    + "    inner join producto p on pp.idproducto = p.idproducto\n"
+                    + "    inner join presentacion pre on pp.idpresentacion = pre.idpresentacion\n"
+                    + "    where v.idflujocaja = " + idFlujoCaja + " \n"
+                    + "    group by pp.idproductopresentacion\n"
+                    + "    order by sum(vp.cantidad) desc";
+
+            Statement st = c.getConexion().createStatement();
+            ResultSet rs = st.executeQuery(sql);
+            while (rs.next()) {
+                datos[0] = String.valueOf(rs.getInt(1));
+                datos[1] = rs.getString(2);
+                datos[2] = rs.getString(3);
+                datos[3] = rs.getString(4);
+
+                jcCajaGeneral2.getModelo().addRow(datos);
+            }
+            tblCajaGeneral2.setModel(jcCajaGeneral2.getModelo());
+
+            st.close();
+            rs.close();
+        } catch (SQLException e) {
+            JOptionPane.showMessageDialog(getRootPane(), e.getMessage());
+        } finally {
+            c.cerrar();
+        }
+        new ColumnasTablas().cuatroColumnas(tblCajaGeneral2, 10, 100, 100, 10);
+    }
+
+    public void LlenarTablaBuscarProductos(String nomProd) throws Exception {
+        Conexion c = new Conexion();
+        try {
+            c.conectar();
+            String datos[] = new String[3];
+            String sql = "SELECT productopresentacion.idproducto, producto.nombre, presentacion.descripcion \n"
+                    + "FROM producto\n"
+                    + "inner join productopresentacion on producto.idproducto = productopresentacion.idproducto\n"
+                    + "inner join presentacion on productopresentacion.idpresentacion = presentacion.idpresentacion\n"
+                    + "where producto.nombre like '%" + nomProd + "%' AND productopresentacion.idalmacen = 2 \n"
+                    + "order by idproductopresentacion";
+
+            Statement st = c.getConexion().createStatement();
+            ResultSet rs = st.executeQuery(sql);
+            while (rs.next()) {
+                datos[0] = String.valueOf(rs.getInt(1));
+                datos[1] = rs.getString(2);
+                datos[2] = rs.getString(3);
+                jcBuscarProducto.getModelo().addRow(datos);
+            }
+            tblBuscarProductoSinRecoger.setModel(jcBuscarProducto.getModelo());
+            //tbl_productos.setModel(new DefaultTableModel());
+            st.close();
+            rs.close();
+        } catch (SQLException e) {
+            JOptionPane.showMessageDialog(getRootPane(), e.getMessage());
+        } finally {
+            c.cerrar();
+        }
+        tblBuscarProductoSinRecoger.setModel(jcBuscarProducto.getModelo());
+        new ColumnasTablas().tresColumnas(tblBuscarProductoSinRecoger, 10, 100, 100);
+    }
+
+    //metodo para cargar requerimientos y traslados
+    private void cargarRequerimientos(int idAlmacen) throws SQLException {
+        Conexion con = new Conexion();
+        try {
+            con.conectar();
+            //se necesita los requerimientos generados con un determinado flujo de inventario
+            //validar el flujo de inventario APERTURADO del usuario que esta logeado
+            int idFlujoInventario = new FlujoInventarioDAO().getIdFlujo(idUsuario, almacen.getId());
+            Requerimiento req = new RequerimientoDAO().ObtenerPorFlujoInventario(idFlujoInventario);
+            System.out.println("IdAlmacen: " + idAlmacen);
+            System.out.println("Flujo: " + idFlujoInventario);
+            System.out.println("Req: " + req.getIdRequerimiento());
+            String sql = "";
+            switch (idAlmacen) {
+                case 2:
+                    sql = "SELECT pp.idproductopresentacion, p.nombre, pre.descripcion,pr.cantidad\n"
+                            + "FROM requerimiento r\n"
+                            + "INNER JOIN producto_requerimiento pr ON r.idrequerimiento = pr.idrequerimiento\n"
+                            + "INNER JOIN productopresentacion pp ON pr.idproductopresentacion = pp.idproductopresentacion\n"
+                            + "INNER JOIN producto p ON pp.idproducto = p.idproducto\n"
+                            + "INNER JOIN presentacion pre ON pre.idpresentacion = pp.idpresentacion\n"
+                            + "WHERE r.idflujoinventario = " + idFlujoInventario;
+                    break;
+                case 3:
+                    break;
+            }
+
+            PreparedStatement pst = con.getConexion().prepareStatement(sql);
+            ResultSet res = pst.executeQuery();
+
+            Object datos[] = new Object[4];
+
+            while (res.next()) {
+                datos[0] = res.getInt(1);
+                datos[1] = res.getString(2);
+                datos[2] = res.getString(3);
+                datos[3] = res.getDouble(4);
+
+                jcRequerimiento.getModelo().addRow(datos);
+            }
+            tblIngresosRequerimientos.setModel(jcRequerimiento.getModelo());
+
+            pst.close();
+            res.close();
+
+        } catch (Exception e) {
+            System.out.println("Error :" + e.getMessage());
+            e.printStackTrace();
+        } finally {
+            con.cerrar();
+        }
+    }
+
+    private void cargarTraslados(int idAlmacen) throws SQLException {
+        Conexion con = new Conexion();
+        try {
+            con.conectar();
+            //se necesita los requerimientos generados con un determinado flujo de inventario
+            //validar el flujo de inventario APERTURADO del usuario que esta logeado
+            int idFlujoInventario = new FlujoInventarioDAO().getIdFlujo(idUsuario, almacen.getId());
+            Requerimiento req = new RequerimientoDAO().ObtenerPorFlujoInventario(idFlujoInventario);
+            System.out.println("IdAlmacen: " + idAlmacen);
+            System.out.println("Flujo: " + idFlujoInventario);
+            System.out.println("Req: " + req.getIdRequerimiento());
+            String sql = "";
+            switch (idAlmacen) {
+                case 2:
+                    sql = "SELECT pp.idproductopresentacion, p.nombre, pre.descripcion,tpp.origen ,tpp.destino,tpp.cantidad\n"
+                            + "FROM traslado t\n"
+                            + "INNER JOIN traslado_prod_pres tpp ON t.idtraslado = tpp.idtraslado\n"
+                            + "INNER JOIN productopresentacion pp ON tpp.idproductopresentacion = pp.idproductopresentacion\n"
+                            + "INNER JOIN producto p ON pp.idproducto = p.idproducto\n"
+                            + "INNER JOIN presentacion pre ON pre.idpresentacion = pp.idpresentacion\n"
+                            + "WHERE t.idflujoinventario = " + idFlujoInventario;
+                    break;
+                case 3:
+                    break;
+            }
+
+            PreparedStatement pst = con.getConexion().prepareStatement(sql);
+            ResultSet res = pst.executeQuery();
+
+            Object datos[] = new Object[6];
+
+            while (res.next()) {
+                datos[0] = res.getString(1);
+                datos[1] = res.getString(2);
+                datos[2] = res.getString(3);
+                datos[3] = res.getString(4);
+                datos[4] = res.getString(5);
+                datos[5] = res.getString(6);
+
+                jcTraslado.getModelo().addRow(datos);
+            }
+            tblIngresosTraslados.setModel(jcTraslado.getModelo());
+
+            pst.close();
+            res.close();
+
+        } catch (Exception e) {
+            System.out.println("Error :" + e.getMessage());
+            e.printStackTrace();
+        } finally {
+            con.cerrar();
+        }
+    }
+
+    //metodo para abrir form de producto rotos o sin recoger
+    private void formProductosAdd(int tipoProductos) {
+        Object datos[] = new Object[4];
+
+        switch (tipoProductos) {
+            case 1:// productos rotos
+                jcTotalProductosRotos.LimpiarTabla();
+                for (int i = 0; i < tblProductosSinRecogerRotos.getRowCount(); i++) {
+                    datos[0] = tblProductosSinRecogerRotos.getValueAt(i, 0).toString();
+                    datos[1] = tblProductosSinRecogerRotos.getValueAt(i, 1).toString();
+                    datos[2] = tblProductosSinRecogerRotos.getValueAt(i, 2).toString();
+                    datos[3] = tblProductosSinRecogerRotos.getValueAt(i, 3).toString();
+                    jcTotalProductosRotos.getModelo().addRow(datos);
+                }
+                tblProductoRotos.setModel(jcTotalProductosRotos.getModelo());
+                if (tblProductoRotos.getRowCount() >= 0) {
+                    prodRotos = false;
+                    btnProductosRotos.setEnabled(prodRotos);
+                }
+                break;
+            case 2:// productos sin recoger
+                jcTotalProductoSinRecoger.LimpiarTabla();
+                for (int i = 0; i < tblProductosSinRecogerRotos.getRowCount(); i++) {
+                    datos[0] = tblProductosSinRecogerRotos.getValueAt(i, 0).toString();
+                    datos[1] = tblProductosSinRecogerRotos.getValueAt(i, 1).toString();
+                    datos[2] = tblProductosSinRecogerRotos.getValueAt(i, 2).toString();
+                    datos[3] = tblProductosSinRecogerRotos.getValueAt(i, 3).toString();
+                    jcTotalProductoSinRecoger.getModelo().addRow(datos);
+                }
+                tblProductoSinRecoger.setModel(jcTotalProductoSinRecoger.getModelo());
+                if (tblProductoSinRecoger.getRowCount() >= 0) {
+                    prodSinRec = false;
+                    btnProdSinRecog.setEnabled(prodSinRec);
+                }
+                break;
+        }
+
+        formProductosSinRecogerRotos.dispose();
+    }
+
+    private void cargarInventarioInicial(int idAlmacen) throws SQLException {
+        Conexion con = new Conexion();
+
+        try {
+            int idFlujoInventario = new FlujoInventarioDAO().getIdFlujo(idAlmacen);
+            con.conectar();
+            String sql = "";
+            switch (idAlmacen) {
+                case 2:
+                    sql = "select pp.idproductopresentacion, p.nombre, pre.descripcion, ip.cantidad\n"
+                            + "from flujoinventario fi\n"
+                            + "inner join inventario2 i on fi.idflujoinventario = i.idflujoinventario\n"
+                            + "inner join inventarioproductos2 ip on i.idinventario2 = ip.idinventario2\n"
+                            + "inner join productopresentacion pp on ip.idproductopresentacion = pp.idproductopresentacion\n"
+                            + "inner join producto p on pp.idproducto = p.idproducto\n"
+                            + "inner join presentacion pre on pp.idpresentacion = pre.idpresentacion\n"
+                            + "where fi.idflujoinventario = " + idFlujoInventario + " and fi.idalmacen = 2 and i.estado = 0";
+                    break;
+                case 3:
+
+                    break;
+            }
+
+            PreparedStatement pst = con.getConexion().prepareStatement(sql);
+
+            ResultSet res = pst.executeQuery();
+
+            Object datos[] = new Object[4];
+
+            while (res.next()) {
+                datos[0] = res.getInt(1);
+                datos[1] = res.getString(2);
+                datos[2] = res.getString(3);
+                datos[3] = res.getDouble(4);
+                jcStockFinal.getModelo().addRow(datos);
+            }
+
+            tblInventarioInicial.setModel(jcStockFinal.getModelo());
+            ColumnasTablas ct = new ColumnasTablas();
+            int t[] = {40, 200, 150, 50};
+            ct.sizeColumns(tblInventarioInicial, 4, t);
+            pst.close();
+            res.close();
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(getRootPane(), "ERROR: " + e);
+        } finally {
+            con.cerrar();
+        }
     }
 
     //metodo para calcular la suma de las tablas de entrada general 1 + entrada general 2
     private void calculos() {
         int filasEntradaGeneral = tblEntradaGeneral.getRowCount();
         int filasEntradaGeneral2 = tblEntradaGeneral2.getRowCount();
+        int filasCajaGeneral = tblCajaGeneral.getRowCount();
+        int filasCajaGeneral2 = tblCajaGeneral2.getRowCount();
 
         Object datos[] = new Object[4];
 
@@ -522,10 +1740,23 @@ public class CierreBarman extends javax.swing.JFrame {
                 datos[1] = tblEntradaGeneral.getValueAt(i, 1).toString();
                 datos[2] = tblEntradaGeneral.getValueAt(i, 2).toString();
                 for (int j = 0; j < filasEntradaGeneral2; j++) {//recorre la segunda tabla
-                    if (Integer.parseInt(tblEntradaGeneral.getValueAt(i, 0).toString()) == Integer.parseInt(tblEntradaGeneral2.getValueAt(j, 0).toString())) {//si es el mismo producto
+                    if (tblEntradaGeneral.getValueAt(i, 1).toString().equals(tblEntradaGeneral2.getValueAt(j, 1).toString())) {//si es el mismo producto
                         cantidad += Double.parseDouble(tblEntradaGeneral2.getValueAt(j, 3).toString());
                     }
                 }
+
+                for (int j = 0; j < filasCajaGeneral; j++) {//recorre la tercera tabla caja general
+                    if (tblEntradaGeneral.getValueAt(i, 1).toString().equals(tblCajaGeneral.getValueAt(j, 1).toString())) {//si es el mismo producto
+                        cantidad += Double.parseDouble(tblCajaGeneral.getValueAt(j, 3).toString());
+                    }
+                }
+
+                for (int j = 0; j < filasCajaGeneral2; j++) {//recorre la cuarta tabla caja general 2
+                    if (tblEntradaGeneral.getValueAt(i, 1).toString().equals(tblCajaGeneral2.getValueAt(j, 1).toString())) {//si es el mismo producto
+                        cantidad += Double.parseDouble(tblCajaGeneral2.getValueAt(j, 3).toString());
+                    }
+                }
+
                 datos[3] = cantidad;
 
                 jcTotal.getModelo().addRow(datos);
@@ -546,29 +1777,55 @@ public class CierreBarman extends javax.swing.JFrame {
     private void fusionarTablas() {
         int filasEntradaGeneral = tblEntradaGeneral.getRowCount();
         int filasEntradaGeneral2 = tblEntradaGeneral2.getRowCount();
+        int filasCajaGeneral = tblCajaGeneral.getRowCount();
+        int filasCajaGeneral2 = tblCajaGeneral2.getRowCount();
+
         Object datos[] = new Object[filasEntradaGeneral];
         Object datos2[] = new Object[filasEntradaGeneral2];
+        Object datos3[] = new Object[filasCajaGeneral];
+        Object datos4[] = new Object[filasCajaGeneral2];
 
-        List<Integer> lista1 = new ArrayList<>();
-        List<Integer> lista2 = new ArrayList<>();
+        List<String> lista1 = new ArrayList<>();
+        List<String> lista2 = new ArrayList<>();
+        List<String> lista3 = new ArrayList<>();
+        List<String> lista4 = new ArrayList<>();
 
+        //llenando el arreglo datos[]
         for (int i = 0; i < filasEntradaGeneral; i++) {
-            datos[i] = Integer.parseInt(tblEntradaGeneral.getValueAt(i, 0).toString());
+            datos[i] = tblEntradaGeneral.getValueAt(i, 1).toString();
         }
-
-        for (Object x : datos) {
-            lista1.add(Integer.parseInt(x.toString()));
-        }
-
+        //llenando el arreglo datos2[]
         for (int i = 0; i < filasEntradaGeneral2; i++) {
-            datos2[i] = Integer.parseInt(tblEntradaGeneral2.getValueAt(i, 0).toString());
+            datos2[i] = tblEntradaGeneral2.getValueAt(i, 1).toString();
+        }
+        //llenando el arreglo datos3[]
+        for (int i = 0; i < filasCajaGeneral; i++) {
+            datos3[i] = tblCajaGeneral.getValueAt(i, 1).toString();
+        }
+        //llenando el arreglo datos4[]
+        for (int i = 0; i < filasCajaGeneral2; i++) {
+            datos4[i] = tblCajaGeneral2.getValueAt(i, 1).toString();
         }
 
+        //agrega los elementos del arreglo datos[] a la lista1
+        for (Object x : datos) {
+            lista1.add(x.toString());
+        }
+        //agrega los elementos del arreglo datos2[] a la lista2
         for (Object y : datos2) {
-            lista2.add(Integer.parseInt(y.toString()));
+            lista2.add(y.toString());
+        }
+        //agrega los elementos del arreglo datos3[] a la lista3
+        for (Object z : datos3) {
+            lista3.add(z.toString());
         }
 
-        Iterator<Integer> it = lista2.iterator();
+        //agrega los elementos del arreglo datos3[] a la lista3
+        for (Object o : datos4) {
+            lista4.add(o.toString());
+        }
+
+        Iterator<String> it = lista2.iterator();
 
         while (it.hasNext()) {
             if (lista1.contains(it.next())) {
@@ -576,18 +1833,62 @@ public class CierreBarman extends javax.swing.JFrame {
             }
         }
 
-        System.out.println(lista2);//la lista2 queda con los productos que no estan en la lista1
+        lista1.addAll(lista2); //agrega todos los elementos de la lista 2 que no estan en la lista1 a la lista1
+
+        Iterator<String> iterador = lista3.iterator();
+        while (iterador.hasNext()) {
+            if (lista1.contains(iterador.next())) {
+                iterador.remove();
+            }
+        }
+
+        lista1.addAll(lista3); //agrega todos los elementos de la lista 3 que no estan en la lista1 a la lista1
+
+        Iterator<String> iterador2 = lista4.iterator();
+        while (iterador2.hasNext()) {
+            if (lista1.contains(iterador2.next())) {
+                iterador2.remove();
+            }
+        }
 
         Object total[] = new Object[4];
 
         for (int i = 0; i < filasEntradaGeneral2; i++) {
 
             for (int j = 0; j < lista2.size(); j++) {
-                if (tblEntradaGeneral2.getValueAt(i, 0).toString().equals(lista2.get(j).toString())) {
+                if (tblEntradaGeneral2.getValueAt(i, 1).toString().equals(lista2.get(j).toString())) {
                     total[0] = tblEntradaGeneral2.getValueAt(i, 0).toString();
                     total[1] = tblEntradaGeneral2.getValueAt(i, 1).toString();
                     total[2] = tblEntradaGeneral2.getValueAt(i, 2).toString();
                     total[3] = tblEntradaGeneral2.getValueAt(i, 3).toString();
+                    jcTotal.getModelo().addRow(total);
+                }
+            }
+
+        }
+
+        for (int i = 0; i < filasCajaGeneral; i++) {
+
+            for (int j = 0; j < lista3.size(); j++) {
+                if (tblCajaGeneral.getValueAt(i, 1).toString().equals(lista3.get(j).toString())) {
+                    total[0] = tblCajaGeneral.getValueAt(i, 0).toString();
+                    total[1] = tblCajaGeneral.getValueAt(i, 1).toString();
+                    total[2] = tblCajaGeneral.getValueAt(i, 2).toString();
+                    total[3] = tblCajaGeneral.getValueAt(i, 3).toString();
+                    jcTotal.getModelo().addRow(total);
+                }
+            }
+
+        }
+
+        for (int i = 0; i < filasCajaGeneral2; i++) {
+
+            for (int j = 0; j < lista4.size(); j++) {
+                if (tblCajaGeneral2.getValueAt(i, 1).toString().equals(lista4.get(j).toString())) {
+                    total[0] = tblCajaGeneral2.getValueAt(i, 0).toString();
+                    total[1] = tblCajaGeneral2.getValueAt(i, 1).toString();
+                    total[2] = tblCajaGeneral2.getValueAt(i, 2).toString();
+                    total[3] = tblCajaGeneral2.getValueAt(i, 3).toString();
                     jcTotal.getModelo().addRow(total);
                 }
             }

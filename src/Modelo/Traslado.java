@@ -11,17 +11,19 @@ public class Traslado {
     private String hora;
     private int idUsuario;
     private int idTipoTraslado;
+    private int idFlujoInventario;
     
 
     public Traslado() {
     }
 
-    public Traslado(int idTraslado, String fecha, String hora, int idUsuario, int idTipoTraslado) {
+    public Traslado(int idTraslado, String fecha, String hora, int idUsuario, int idTipoTraslado, int idFlujoInventario) {
         this.idTraslado = idTraslado;
         this.fecha = fecha;
         this.hora = hora;
         this.idUsuario = idUsuario;
         this.idTipoTraslado = idTipoTraslado;
+        this.idFlujoInventario = idFlujoInventario;
     }
     
     public int getIdTraslado() {
@@ -64,9 +66,18 @@ public class Traslado {
         this.idTipoTraslado = idTipoTraslado;
     }
 
+    public int getIdFlujoInventario() {
+        return idFlujoInventario;
+    }
+
+    public void setIdFlujoInventario(int idFlujoInventario) {
+        this.idFlujoInventario = idFlujoInventario;
+    }
+
     @Override
     public String toString() {
-        return "Traslado{" + "idTraslado=" + idTraslado + ", fecha=" + fecha + ", hora=" + hora + ", idUsuario=" + idUsuario + ", idTipoTraslado=" + idTipoTraslado + '}';
+        return "Traslado{" + "idTraslado=" + idTraslado + ", fecha=" + fecha + ", hora=" + hora + ", idUsuario=" + idUsuario + ", idTipoTraslado=" + idTipoTraslado + ", idFlujoInventario=" + idFlujoInventario + '}';
     }
-        
+     
+    
 }

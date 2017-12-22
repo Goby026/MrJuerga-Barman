@@ -1,31 +1,24 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package Vista;
 
+import Controlador.ColumnasTablas;
 import Controlador.DropXlsx;
+import Controlador.JTableControl;
 import Controlador.ManejadorFechas;
 import Modelo.Almacen;
-import Modelo.Conteo;
-import Modelo.ConteoProducto;
-import Modelo.Medida;
+import Modelo.FlujoInventario;
+import Modelo.Inventario;
+import Modelo.InventarioProducto;
 import Modelo.MySQLDAO.AlmacenDAO;
 import Modelo.MySQLDAO.Conexion;
-import Modelo.MySQLDAO.ConteoDAO;
-import Modelo.MySQLDAO.ConteoProductoDAO;
-import Modelo.MySQLDAO.MedidaDAO;
-import Modelo.MySQLDAO.PresentacionDAO;
+import Modelo.MySQLDAO.FlujoInventarioDAO;
+import Modelo.MySQLDAO.InventarioDAO;
+import Modelo.MySQLDAO.InventarioProductoDAO;
 import Modelo.MySQLDAO.UsuarioDAO;
+import Modelo.Usuario;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.swing.JOptionPane;
-import javax.swing.JTable;
-import javax.swing.table.DefaultTableModel;
 
 /**
  *
@@ -34,36 +27,28 @@ import javax.swing.table.DefaultTableModel;
 public class InventarioInicial extends javax.swing.JFrame {
 
     String usuario;
-    DefaultTableModel modelo;
     ManejadorFechas mf = new ManejadorFechas();
+    JTableControl jcTabla = null;
+    Almacen a = null;
 
-    public InventarioInicial(String user, String storage) {
+    public InventarioInicial(String user, String storage) throws Exception {
         initComponents();
         setLocationRelativeTo(null);
 
         this.usuario = user;
         lblUsuario.setText(usuario);
         lblAlmacen.setText(storage);
+        a = new AlmacenDAO().Obtener(lblAlmacen.getText());
 
         DropXlsx dropXlsx = new DropXlsx();
-        dropXlsx.setJtable(tblConteo);
+        dropXlsx.setJtable(tblInventarioInicial);
         titulos();
-        cargarComboAlmacen();
         lblFecha.setText(mf.getFechaActual());
+
+        cargarTabla(a.getId());
     }
 
     public InventarioInicial() {
-    }
-
-    private void cargarComboAlmacen() {
-        try {
-            AlmacenDAO adao = new AlmacenDAO();
-            for (Almacen a : adao.listar()) {
-                cmbAlmacen.addItem(a);
-            }
-        } catch (Exception e) {
-            JOptionPane.showMessageDialog(getRootPane(), "ERROR: " + e.getMessage());
-        }
     }
 
     /**
@@ -76,32 +61,27 @@ public class InventarioInicial extends javax.swing.JFrame {
     private void initComponents() {
 
         jScrollPane1 = new javax.swing.JScrollPane();
-        tblConteo = new javax.swing.JTable();
+        tblInventarioInicial = new javax.swing.JTable();
         lblAlmacen = new javax.swing.JLabel();
         lblUsuario = new javax.swing.JLabel();
         lblFecha = new javax.swing.JLabel();
         btnVolver = new javax.swing.JButton();
         btnGuardar = new javax.swing.JButton();
-        cmbAlmacen = new javax.swing.JComboBox<>();
-        btnMostrar = new javax.swing.JButton();
         jSeparator1 = new javax.swing.JSeparator();
-        jLabel2 = new javax.swing.JLabel();
-        txtProducto = new javax.swing.JTextField();
-        jLabel3 = new javax.swing.JLabel();
-        txtCantidad = new javax.swing.JTextField();
-        btnOk = new javax.swing.JButton();
         jLabel4 = new javax.swing.JLabel();
         jLabel5 = new javax.swing.JLabel();
+        jLabel6 = new javax.swing.JLabel();
+        lblNroInventario = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         getContentPane().setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
-        tblConteo = new javax.swing.JTable(){
+        tblInventarioInicial = new javax.swing.JTable(){
             public boolean isCellEditable(int rowIndex, int colIndex){
                 return false;
             }
         };
-        tblConteo.setModel(new javax.swing.table.DefaultTableModel(
+        tblInventarioInicial.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
                 {null, null, null, null},
                 {null, null, null, null},
@@ -112,12 +92,7 @@ public class InventarioInicial extends javax.swing.JFrame {
                 "Title 1", "Title 2", "Title 3", "Title 4"
             }
         ));
-        tblConteo.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                tblConteoMouseClicked(evt);
-            }
-        });
-        jScrollPane1.setViewportView(tblConteo);
+        jScrollPane1.setViewportView(tblInventarioInicial);
 
         getContentPane().add(jScrollPane1, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 100, 720, 440));
 
@@ -129,12 +104,12 @@ public class InventarioInicial extends javax.swing.JFrame {
         lblUsuario.setFont(new java.awt.Font("Arial", 0, 14)); // NOI18N
         lblUsuario.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
         lblUsuario.setText("user");
-        getContentPane().add(lblUsuario, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 670, 140, 30));
+        getContentPane().add(lblUsuario, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 650, 140, 30));
 
         lblFecha.setFont(new java.awt.Font("Arial", 0, 14)); // NOI18N
         lblFecha.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
         lblFecha.setText("date");
-        getContentPane().add(lblFecha, new org.netbeans.lib.awtextra.AbsoluteConstraints(160, 670, 140, 30));
+        getContentPane().add(lblFecha, new org.netbeans.lib.awtextra.AbsoluteConstraints(160, 650, 140, 30));
 
         btnVolver.setBackground(new java.awt.Color(102, 102, 102));
         btnVolver.setFont(new java.awt.Font("Microsoft Yi Baiti", 0, 18)); // NOI18N
@@ -145,55 +120,19 @@ public class InventarioInicial extends javax.swing.JFrame {
                 btnVolverActionPerformed(evt);
             }
         });
-        getContentPane().add(btnVolver, new org.netbeans.lib.awtextra.AbsoluteConstraints(540, 670, 190, 30));
+        getContentPane().add(btnVolver, new org.netbeans.lib.awtextra.AbsoluteConstraints(540, 650, 190, 30));
 
         btnGuardar.setBackground(new java.awt.Color(255, 153, 153));
         btnGuardar.setFont(new java.awt.Font("Microsoft Yi Baiti", 0, 18)); // NOI18N
         btnGuardar.setForeground(new java.awt.Color(51, 51, 51));
-        btnGuardar.setText("GUARDAR");
+        btnGuardar.setText("APERTURAR INVENTARIO");
         btnGuardar.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 btnGuardarActionPerformed(evt);
             }
         });
-        getContentPane().add(btnGuardar, new org.netbeans.lib.awtextra.AbsoluteConstraints(540, 620, 190, 30));
-
-        cmbAlmacen.setFont(new java.awt.Font("Arial", 0, 10)); // NOI18N
-        getContentPane().add(cmbAlmacen, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 60, 280, -1));
-
-        btnMostrar.setFont(new java.awt.Font("Arial", 0, 10)); // NOI18N
-        btnMostrar.setText("MOSTRAR");
-        btnMostrar.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                btnMostrarActionPerformed(evt);
-            }
-        });
-        getContentPane().add(btnMostrar, new org.netbeans.lib.awtextra.AbsoluteConstraints(310, 60, 120, -1));
-        getContentPane().add(jSeparator1, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 660, 730, 10));
-
-        jLabel2.setText("PRODUCTO");
-        getContentPane().add(jLabel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 550, -1, 20));
-
-        txtProducto.setEditable(false);
-        getContentPane().add(txtProducto, new org.netbeans.lib.awtextra.AbsoluteConstraints(80, 550, 420, -1));
-
-        jLabel3.setText("CANTIDAD");
-        getContentPane().add(jLabel3, new org.netbeans.lib.awtextra.AbsoluteConstraints(510, 550, -1, 20));
-
-        txtCantidad.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                txtCantidadActionPerformed(evt);
-            }
-        });
-        getContentPane().add(txtCantidad, new org.netbeans.lib.awtextra.AbsoluteConstraints(580, 550, 80, -1));
-
-        btnOk.setText("OK");
-        btnOk.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                btnOkActionPerformed(evt);
-            }
-        });
-        getContentPane().add(btnOk, new org.netbeans.lib.awtextra.AbsoluteConstraints(670, 550, -1, -1));
+        getContentPane().add(btnGuardar, new org.netbeans.lib.awtextra.AbsoluteConstraints(240, 590, 270, 30));
+        getContentPane().add(jSeparator1, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 640, 730, 10));
 
         jLabel4.setFont(new java.awt.Font("Arial", 0, 14)); // NOI18N
         jLabel4.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
@@ -205,12 +144,22 @@ public class InventarioInicial extends javax.swing.JFrame {
         jLabel5.setText("ALMACEN");
         getContentPane().add(jLabel5, new org.netbeans.lib.awtextra.AbsoluteConstraints(490, 10, 80, -1));
 
+        jLabel6.setFont(new java.awt.Font("Arial", 0, 10)); // NOI18N
+        jLabel6.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        jLabel6.setText("N° INVENTARIO");
+        getContentPane().add(jLabel6, new org.netbeans.lib.awtextra.AbsoluteConstraints(490, 40, 80, -1));
+
+        lblNroInventario.setFont(new java.awt.Font("Arial", 0, 10)); // NOI18N
+        lblNroInventario.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        lblNroInventario.setText(".........");
+        getContentPane().add(lblNroInventario, new org.netbeans.lib.awtextra.AbsoluteConstraints(570, 40, 160, -1));
+
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
     private void btnVolverActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnVolverActionPerformed
         try {
-            VistaRequerimientoBarman vrb = new VistaRequerimientoBarman(usuario,lblAlmacen.getText());
+            Menu vrb = new Menu(usuario, lblAlmacen.getText());
             vrb.setVisible(true);
             dispose();
         } catch (Exception ex) {
@@ -219,44 +168,12 @@ public class InventarioInicial extends javax.swing.JFrame {
     }//GEN-LAST:event_btnVolverActionPerformed
 
     private void btnGuardarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnGuardarActionPerformed
-        guardarConteo();
+        System.out.println("ID almacen: " + a.getId());
+        aperturarInventario();
     }//GEN-LAST:event_btnGuardarActionPerformed
 
-    private void btnMostrarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnMostrarActionPerformed
-        LimpiarTabla(tblConteo, modelo);
-
-        Almacen a = (Almacen) cmbAlmacen.getSelectedItem();
-        try {
-            cargarTabla(a.getId(), "");
-        } catch (SQLException ex) {
-            Logger.getLogger(InventarioInicial.class.getName()).log(Level.SEVERE, null, ex);
-        }
-    }//GEN-LAST:event_btnMostrarActionPerformed
-
-    private void tblConteoMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tblConteoMouseClicked
-        int fila = tblConteo.getSelectedRow();
-        String producto = tblConteo.getValueAt(fila, 1).toString() + " - " + tblConteo.getValueAt(fila, 2).toString();
-        txtProducto.setText(producto);
-    }//GEN-LAST:event_tblConteoMouseClicked
-
-    private void btnOkActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnOkActionPerformed
-        int fila = tblConteo.getSelectedRow();
-        if (fila >= 0) {
-            tblConteo.setValueAt(txtCantidad.getText(), fila, 4);
-            limpiarCampos();
-        } else {
-            JOptionPane.showMessageDialog(getRootPane(), "SELECCIONE UN PRODUCTO");
-        }
-    }//GEN-LAST:event_btnOkActionPerformed
-
-    private void txtCantidadActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtCantidadActionPerformed
-        btnOk.doClick();
-    }//GEN-LAST:event_txtCantidadActionPerformed
-
     private void limpiarCampos() {
-        tblConteo.clearSelection();
-        txtProducto.setText("");
-        txtCantidad.setText("");
+        tblInventarioInicial.clearSelection();
     }
 
     /**
@@ -297,65 +214,66 @@ public class InventarioInicial extends javax.swing.JFrame {
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     public javax.swing.JButton btnGuardar;
-    private javax.swing.JButton btnMostrar;
-    private javax.swing.JButton btnOk;
     public javax.swing.JButton btnVolver;
-    private javax.swing.JComboBox<Almacen> cmbAlmacen;
-    private javax.swing.JLabel jLabel2;
-    private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel5;
+    private javax.swing.JLabel jLabel6;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JSeparator jSeparator1;
     private javax.swing.JLabel lblAlmacen;
     private javax.swing.JLabel lblFecha;
+    private javax.swing.JLabel lblNroInventario;
     private javax.swing.JLabel lblUsuario;
-    private javax.swing.JTable tblConteo;
-    private javax.swing.JTextField txtCantidad;
-    private javax.swing.JTextField txtProducto;
+    private javax.swing.JTable tblInventarioInicial;
     // End of variables declaration//GEN-END:variables
 
     private void titulos() {
-        String titulos[] = {"COD", "PRODUCTO", "PRESENTACION", "MEDIDA", "CANTIDAD"};
-        modelo = new DefaultTableModel(null, titulos);
-        tblConteo.setModel(modelo);
+        String titulos[] = {"COD", "PRODUCTO", "PRESENTACION", "CANTIDAD"};
+        jcTabla = new JTableControl(titulos, tblInventarioInicial);
+        jcTabla.llenarTitulos();
     }
 
-    private void cargarTabla(int idAlmacen, String nomProd) throws SQLException {
+    private void cargarTabla(int idAlmacen) throws SQLException {
         Conexion con = new Conexion();
 
         try {
+            int idFlujoInventario = new FlujoInventarioDAO().getIdFlujo(idAlmacen);
             con.conectar();
-//            String sql = "SELECT productopresentacion.idproductopresentacion, producto.nombre,presentacion.descripcion \n"
-//                    + "FROM producto\n"
-//                    + "INNER JOIN productopresentacion ON producto.idproducto = productopresentacion.idproducto\n"
-//                    + "INNER JOIN categoria ON productopresentacion.idcategoria = categoria.idcategoria\n"
-//                    + "INNER JOIN presentacion ON productopresentacion.idpresentacion = presentacion.idpresentacion\n"
-//                    + "WHERE productopresentacion.idalmacen = " + idAlmacen + " AND producto.nombre LIKE '%" + nomProd + "%'";
-            String sql = "SELECT productopresentacion.idproductopresentacion, producto.nombre,presentacion.descripcion\n"
-                    + "FROM producto\n"
-                    + "INNER JOIN productopresentacion ON producto.idproducto = productopresentacion.idproducto\n"
-                    + "INNER JOIN categoria ON productopresentacion.idcategoria = categoria.idcategoria\n"
-                    + "INNER JOIN presentacion ON productopresentacion.idpresentacion = presentacion.idpresentacion\n"
-                    + "WHERE productopresentacion.idalmacen = " + idAlmacen + " AND producto.nombre LIKE '%" + nomProd + "%'\n"
-                    + "order by presentacion.descripcion desc";
+            String sql = "";
+            switch (idAlmacen) {
+                case 2:
+                    sql = "select pp.idproductopresentacion, p.nombre, pre.descripcion, ip.cantidad\n"
+                            + "from flujoinventario fi\n"
+                            + "inner join inventario2 i on fi.idflujoinventario = i.idflujoinventario\n"
+                            + "inner join inventarioproductos2 ip on i.idinventario2 = ip.idinventario2\n"
+                            + "inner join productopresentacion pp on ip.idproductopresentacion = pp.idproductopresentacion\n"
+                            + "inner join producto p on pp.idproducto = p.idproducto\n"
+                            + "inner join presentacion pre on pp.idpresentacion = pre.idpresentacion\n"
+                            + "where fi.idflujoinventario = " + idFlujoInventario + " and fi.idalmacen = 2 and i.estado = 0";
+                    break;
+                case 3:
+
+                    break;
+            }
 
             PreparedStatement pst = con.getConexion().prepareStatement(sql);
 
             ResultSet res = pst.executeQuery();
 
-            Object datos[] = new Object[5];
+            Object datos[] = new Object[4];
 
             while (res.next()) {
                 datos[0] = res.getInt(1);
                 datos[1] = res.getString(2);
                 datos[2] = res.getString(3);
-                datos[3] = "UNIDAD";
-                datos[4] = 0;
-                modelo.addRow(datos);
+                datos[3] = res.getDouble(4);
+                jcTabla.getModelo().addRow(datos);
             }
 
-            tblConteo.setModel(modelo);
+            tblInventarioInicial.setModel(jcTabla.getModelo());
+            ColumnasTablas ct = new ColumnasTablas();
+            int t[] = {40, 200, 150, 50};
+            ct.sizeColumns(tblInventarioInicial, 4, t);
             pst.close();
             res.close();
         } catch (Exception e) {
@@ -365,65 +283,89 @@ public class InventarioInicial extends javax.swing.JFrame {
         }
     }
 
-    private boolean guardarConteo() {
+    private boolean aperturarInventario() {
         try {
+            if (tblInventarioInicial.getRowCount() > 0) {
 
-            if (tblConteo.getRowCount() > 0) {
-                //validar si ya se realizo la cuenta
-                int opc = JOptionPane.showConfirmDialog(null, "¿DESEA GUARDAR LA LISTA?", "GUARDAR CONTEO " + new ManejadorFechas().getFechaActual(), JOptionPane.YES_NO_OPTION);
+                int opc = JOptionPane.showConfirmDialog(null, "¿DESEA GUARDAR LA LISTA?", "GUARDAR INVENTARIO " + new ManejadorFechas().getFechaActual(), JOptionPane.YES_NO_OPTION);
                 if (opc == 0) { //verdadero
-                    int contador = 0;
-                    try {
-                        //registrar inventario
-                        
-                        
-                        //primero registrar el conteo
-                        Conteo c = new Conteo();
-                        UsuarioDAO udao = new UsuarioDAO();
-                        int idUsuario = udao.getIdUsuario(lblUsuario.getText());
-                        Almacen a = new AlmacenDAO().Obtener(cmbAlmacen.getSelectedItem().toString());
-                        c.setIdusuario(idUsuario);
-                        c.setIdAlmacen(a.getId());
-                        c.setFecha(new ManejadorFechas().getFechaActualMySQL());
-                        c.setHora(new ManejadorFechas().getHoraActual());
+                    Usuario u = new UsuarioDAO().Obtener(lblUsuario.getText());
+                    //registrar nuevo flujo de inventario
+                    FlujoInventario fi = new FlujoInventario();
+                    fi.setFecha_inicio(new ManejadorFechas().getFechaActualMySQL());
+                    fi.setHora_inicio(new ManejadorFechas().getHoraActual());
+                    fi.setFecha_final(null);
+                    fi.setHora_final(null);
+                    fi.setIdusuario(u.getId());
+                    fi.setIdalmacen(a.getId());
+                    fi.setSaldoFavor(0.0);
+                    fi.setEstado(1);
 
-                        ConteoDAO cdao = new ConteoDAO();
+                    int c = 0;
+                    FlujoInventarioDAO fidao = new FlujoInventarioDAO();
 
-                        if (cdao.Registrar(c)) {
-                            int idConteo = cdao.getLastId();
-                            Medida m = new MedidaDAO().Obtener(1);
-                            ConteoProductoDAO cpdao = new ConteoProductoDAO();
-                            for (int i = 0; i < tblConteo.getRowCount(); i++) {
-                                ConteoProducto cp = new ConteoProducto();
-                                cp.setIdconteo(idConteo);
-                                cp.setIdProductoPresentacion(Integer.parseInt(tblConteo.getValueAt(i, 0).toString()));
-                                cp.setIdPresentacion(new PresentacionDAO().getIdPresentacion(tblConteo.getValueAt(i, 2).toString()));
-                                cp.setMedida(m);
-                                cp.setStock(Integer.parseInt(tblConteo.getValueAt(i, 4).toString()));
-                                if (cpdao.Registrar(cp)) {
-                                    contador++;
+                    if (fidao.Registrar(fi)) {
+                        System.out.println("Registró el flujo de inventario");
+                        int idFlujoInventario = fidao.getLastIdFlujoInventario(a.getId());
+
+                        Inventario i = new Inventario();
+                        i.setFecha(new ManejadorFechas().getFechaActualMySQL());
+                        i.setHora(new ManejadorFechas().getHoraActual());
+                        i.setIdusuario(u.getId());
+                        i.setIdflujoinventario(idFlujoInventario);
+                        i.setEstado(1);
+
+                        InventarioDAO idao = new InventarioDAO();
+                        InventarioProductoDAO ipdao = new InventarioProductoDAO();
+
+                        if (a.getId() == 1) {
+                            if (idao.Registrar(i)) {
+                                System.out.println("Registró el inventario de almacen 1");
+                                int idInventario = idao.getLastId(a.getId());
+                                for (int j = 0; j < tblInventarioInicial.getRowCount(); j++) {
+                                    InventarioProducto ip = new InventarioProducto();
+                                    ip.setIdinventario(idInventario);
+                                    ip.setIdproductopresentacion(Integer.parseInt(tblInventarioInicial.getValueAt(j, 0).toString()));
+                                    ip.setCantidad(Double.parseDouble(tblInventarioInicial.getValueAt(j, 3).toString()));
+                                    ip.setCantidad_final(0.0);
+
+                                    if (ipdao.Registrar(ip)) {
+                                        c++;
+                                    }
                                 }
                             }
+                        } else {
+                            if (idao.Registrar(i, a.getId())) {
+                                System.out.println("Registró el inventario de almacen " + a.getId());
+                                int idInventario = idao.getLastId(a.getId());
+                                for (int j = 0; j < tblInventarioInicial.getRowCount(); j++) {
+                                    InventarioProducto ip = new InventarioProducto();
+                                    ip.setIdinventario(idInventario);
+                                    ip.setIdproductopresentacion(Integer.parseInt(tblInventarioInicial.getValueAt(j, 0).toString()));
+                                    ip.setCantidad(Double.parseDouble(tblInventarioInicial.getValueAt(j, 3).toString()));
+                                    ip.setCantidad_final(0.0);
+
+                                    if (ipdao.Registrar(ip, a.getId())) {
+                                        c++;
+                                    }
+                                }
+                            }
+
                         }
 
-                        if (contador > 0) {
-                            JOptionPane.showMessageDialog(getRootPane(), "SE REGISTRO EL CONTEO EXITOSAMENTE");
-//                            parametros.put("fecha", cd.lblFecha.getText());
-//                            mrv = new MyiReportVisor(System.getProperty("user.dir") + "\\reportes\\InventarioInicial.jrxml", parametros, new ColumnasTablas().getPageSize(cd.tblContados));
-//                            mrv.setNombreArchivo("Conteo" + cd.lblFecha.getText());
-//                            mrv.exportarAPdf();
-//                            mrv.dispose();
+                        if (c > 0) {
+                            JOptionPane.showMessageDialog(getRootPane(), "SE REGISTRO EL INVENTARIO CORRECTAMENTE");
                         }
-                    } catch (Exception ex) {
-                        System.out.println(ex.getMessage());
+                    } else {
+                        System.out.println("Error al registrar el flujo de inventario");
                     }
                 } else {//falso
                 }
             } else {
-                JOptionPane.showMessageDialog(getRootPane(), "NO SE PUEDE REGISTRAR UN CONTEO VACIO, INGRESE PRODUCTOS CONTADOS");
+                JOptionPane.showMessageDialog(getRootPane(), "NO SE PUEDE APERTURAR UN INVENTARIO VACIO, INFORME A SISTEMAS");
             }
 
-            for (int i = 0; i < tblConteo.getRowCount(); i++) {
+            for (int i = 0; i < tblInventarioInicial.getRowCount(); i++) {
 
             }
 
@@ -432,12 +374,4 @@ public class InventarioInicial extends javax.swing.JFrame {
         }
         return false;
     }
-
-    private void LimpiarTabla(JTable tabla, DefaultTableModel modelo) {
-        for (int i = 0; i < tabla.getRowCount(); i++) {
-            modelo.removeRow(i);
-            i -= 1;
-        }
-    }
-
 }

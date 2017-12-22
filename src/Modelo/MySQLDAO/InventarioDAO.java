@@ -1,8 +1,4 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
+
 package Modelo.MySQLDAO;
 
 import Modelo.DAO.DAO;
@@ -181,6 +177,42 @@ public class InventarioDAO extends Conexion implements DAO<Inventario> {
             this.cerrar();
         }
         return i;
+    }
+    
+    //metodo para obtener el ultimo id registrado
+    public int getLastId(int inventario) throws Exception{
+        try {
+            this.conectar();
+            String sql = "";
+            switch(inventario){
+                case 1:
+                    sql = "SELECT max(idInventario1) FROM inventario1 ORDER BY idinventario1 DESC LIMIT 1";
+                    break;
+                case 2:
+                    sql = "SELECT max(idInventario2) FROM inventario2 ORDER BY idinventario2 DESC LIMIT 1";
+                    break;
+                case 3:
+                    sql = "SELECT max(idInventario3) FROM inventario3 ORDER BY idinventario3 DESC LIMIT 1";
+                    break;
+            }
+            
+            PreparedStatement pst = this.conexion.prepareStatement(sql);
+            
+            ResultSet res = pst.executeQuery();
+            
+            if(res.next()){
+                return res.getInt(1);
+            }
+            
+            pst.close();
+            res.close();
+           
+        } catch (Exception e) {
+            throw e;
+        }finally{
+            this.cerrar();
+        }
+        return -1;
     }
 
 }

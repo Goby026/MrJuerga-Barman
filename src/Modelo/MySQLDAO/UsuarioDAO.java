@@ -152,4 +152,37 @@ public class UsuarioDAO extends Conexion implements UsuarioCRUD{
         return idUsuario;
     }
     
+    //obtener usuario a partir del nombre de usuario
+    public Usuario Obtener(String usuario) throws Exception {
+        Usuario u = null;
+        try {
+            this.conectar();
+            PreparedStatement pst = this.conexion.prepareStatement("select * from usuario where usuario = ?");
+            pst.setString(1, usuario);
+            ResultSet rs = pst.executeQuery();
+            if (rs.next()) {
+                u = new Usuario();
+                u.setId(rs.getInt("idusuario"));
+                u.setNombre(rs.getString("nombre"));
+                u.setApellido(rs.getString("apellido"));
+                u.setDni(rs.getString("dni"));
+                u.setRuc(rs.getString("ruc"));
+                u.setTelefono(rs.getString("telefono"));
+                u.setDireccion(rs.getString("direccion"));
+                u.setImagen(rs.getString("imagen"));
+                u.setUsuario(rs.getString("usuario"));
+                u.setPass(rs.getString("pass"));
+                u.setSueldo(rs.getDouble("sueldo"));
+                u.setPlanilla(rs.getInt("planilla"));
+            }
+            rs.close();
+            pst.close();
+        } catch (Exception e) {
+            throw e;
+        } finally {
+            this.cerrar();
+        }
+        return u;
+    }
+    
 }

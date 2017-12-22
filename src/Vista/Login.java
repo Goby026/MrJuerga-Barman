@@ -187,7 +187,7 @@ public class Login extends javax.swing.JFrame {
     private void btnBarraGeneralActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnBarraGeneralActionPerformed
         try {
             storage = "BARRA GENERAL";
-            CierreBarman cb = new CierreBarman(txtUsuario.getText(), storage);
+            Menu cb = new Menu(txtUsuario.getText(), storage);
             cb.setVisible(true);
             formAlmacen.dispose();
             dispose();
@@ -199,7 +199,7 @@ public class Login extends javax.swing.JFrame {
     private void btnBarraVipActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnBarraVipActionPerformed
         try {
             storage = "BARRA VIP";
-            CierreBarman cb = new CierreBarman(txtUsuario.getText(), storage);
+            Menu cb = new Menu(txtUsuario.getText(), storage);
             cb.setVisible(true);
             formAlmacen.dispose();
             dispose();

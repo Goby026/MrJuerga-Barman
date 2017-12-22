@@ -22,11 +22,12 @@ public class TrasladoDAO extends Conexion implements DAO<Traslado> {
     public boolean Registrar(Traslado p) throws Exception {
         try {
             this.conectar();
-            PreparedStatement pst = this.conexion.prepareStatement("INSERT INTO traslado(fecha, hora, idusuario, idtipotraslado) VALUES (?,?,?,?)");
+            PreparedStatement pst = this.conexion.prepareStatement("INSERT INTO traslado(fecha, hora, idusuario, idtipotraslado, idflujoinventario) VALUES (?,?,?,?,?)");
             pst.setString(1, p.getFecha());
             pst.setString(2, p.getHora());
             pst.setInt(3, p.getIdUsuario());
             pst.setInt(4, p.getIdTipoTraslado());
+            pst.setInt(5, p.getIdFlujoInventario());
             
             int res = pst.executeUpdate();
             if (res > 0) {
@@ -45,12 +46,13 @@ public class TrasladoDAO extends Conexion implements DAO<Traslado> {
     public boolean Modificar(Traslado p) throws Exception {
         try {
             this.conectar();
-            PreparedStatement pst = this.conexion.prepareStatement("UPDATE traslado SET fecha=?, hora=?, idusuario=?, idtipotraslado = ? WHERE idtraslado = ?");
+            PreparedStatement pst = this.conexion.prepareStatement("UPDATE traslado SET fecha=?, hora=?, idusuario=?, idtipotraslado = ?, idflujoinventario = ? WHERE idtraslado = ?");
             pst.setString(1, p.getFecha());
             pst.setString(2, p.getHora());
             pst.setInt(3, p.getIdUsuario());
             pst.setInt(4, p.getIdTipoTraslado());
-            pst.setInt(5, p.getIdTraslado());
+            pst.setInt(5, p.getIdFlujoInventario());
+            pst.setInt(6, p.getIdTraslado());
             
             int res = pst.executeUpdate();
             if (res > 0) {
@@ -109,7 +111,7 @@ public class TrasladoDAO extends Conexion implements DAO<Traslado> {
                 t.setHora(res.getString(3));
                 t.setIdUsuario(res.getInt(4));
                 t.setIdTipoTraslado(res.getInt(5));
-                
+                t.setIdFlujoInventario(res.getInt(6));
                 lista.add(t);
             }
             pst.close();
@@ -138,6 +140,7 @@ public class TrasladoDAO extends Conexion implements DAO<Traslado> {
                 t.setHora(res.getString(3));
                 t.setIdUsuario(res.getInt(4));
                 t.setIdTipoTraslado(res.getInt(5));
+                t.setIdFlujoInventario(res.getInt(6));
             }
             pst.close();
             res.close();

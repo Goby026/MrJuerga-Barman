@@ -14,12 +14,13 @@ public class FlujoInventario {
     private String hora_final;
     private int idusuario;
     private int idalmacen;
+    private double saldoFavor;
     private int estado;
 
     public FlujoInventario() {
     }
 
-    public FlujoInventario(int idflujoinventario, String fecha_inicio, String hora_inicio, String fecha_final, String hora_final, int idusuario, int idalmacen, int estado) {
+    public FlujoInventario(int idflujoinventario, String fecha_inicio, String hora_inicio, String fecha_final, String hora_final, int idusuario, int idalmacen,double saldoFavor ,int estado) {
         this.idflujoinventario = idflujoinventario;
         this.fecha_inicio = fecha_inicio;
         this.hora_inicio = hora_inicio;
@@ -27,6 +28,7 @@ public class FlujoInventario {
         this.hora_final = hora_final;
         this.idusuario = idusuario;
         this.idalmacen = idalmacen;
+        this.saldoFavor = saldoFavor;
         this.estado = estado;
     }
 
@@ -85,6 +87,14 @@ public class FlujoInventario {
     public void setIdalmacen(int idalmacen) {
         this.idalmacen = idalmacen;
     }
+
+    public double getSaldoFavor() {
+        return saldoFavor;
+    }
+
+    public void setSaldoFavor(double saldoFavor) {
+        this.saldoFavor = saldoFavor;
+    }    
 
     public int getEstado() {
         return estado;

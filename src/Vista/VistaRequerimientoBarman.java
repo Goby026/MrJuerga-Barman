@@ -35,7 +35,9 @@ public class VistaRequerimientoBarman extends javax.swing.JFrame {
         lblAlmacen.setText(storage);
         rb = new RequerimientoBarmanControl(this);
         cargarTitulosRequerimientos();
-        cargarComboAlmacen();
+    }
+
+    public VistaRequerimientoBarman() {
     }
 
     public void cargarTitulosRequerimientos() {
@@ -81,17 +83,6 @@ public class VistaRequerimientoBarman extends javax.swing.JFrame {
         new ColumnasTablas().cuatroColumnas(tblRequerimientos, 10, 100, 100, 10);
     }
 
-    private VistaRequerimientoBarman() {
-
-    }
-
-    private void cargarComboAlmacen() throws Exception {
-        AlmacenDAO adao = new AlmacenDAO();
-        for (Almacen a : adao.listar()) {
-            cmbAlmacen.addItem(a);
-        }
-    }
-
     public void limpiarTabla() {
         for (int i = 0; i < tblRequerimientos.getRowCount(); i++) {
             modeloProductos.removeRow(i);
@@ -117,8 +108,6 @@ public class VistaRequerimientoBarman extends javax.swing.JFrame {
         btnGuardar = new javax.swing.JButton();
         jScrollPane1 = new javax.swing.JScrollPane();
         tblRequerimientos = new javax.swing.JTable();
-        jLabel3 = new javax.swing.JLabel();
-        jLabel5 = new javax.swing.JLabel();
         jScrollPane2 = new javax.swing.JScrollPane();
         txaObservaciones = new javax.swing.JTextArea();
         txtProducto = new javax.swing.JTextField();
@@ -132,16 +121,18 @@ public class VistaRequerimientoBarman extends javax.swing.JFrame {
         jLabel9 = new javax.swing.JLabel();
         cmbMedida = new javax.swing.JComboBox<>();
         jLabel10 = new javax.swing.JLabel();
-        cmbAlmacen = new javax.swing.JComboBox<>();
         jLabel2 = new javax.swing.JLabel();
         txtUsuario = new javax.swing.JTextField();
         txtFecha = new javax.swing.JTextField();
         jLabel4 = new javax.swing.JLabel();
         jSeparator1 = new javax.swing.JSeparator();
-        btnRecetas = new javax.swing.JButton();
         btnVolver = new javax.swing.JButton();
+        jLabel13 = new javax.swing.JLabel();
+        jPanel1 = new javax.swing.JPanel();
+        jLabel14 = new javax.swing.JLabel();
+        jLabel15 = new javax.swing.JLabel();
+        jLabel5 = new javax.swing.JLabel();
 
-        setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         setTitle("COMPRAS PENDIENTES");
         getContentPane().setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
@@ -152,50 +143,47 @@ public class VistaRequerimientoBarman extends javax.swing.JFrame {
         lblAlmacen.setFont(new java.awt.Font("Arial", 0, 12)); // NOI18N
         lblAlmacen.setForeground(new java.awt.Color(204, 204, 204));
         lblAlmacen.setText("Almacen");
-        jPanel6.add(lblAlmacen, new org.netbeans.lib.awtextra.AbsoluteConstraints(1060, 50, 130, 20));
+        jPanel6.add(lblAlmacen, new org.netbeans.lib.awtextra.AbsoluteConstraints(830, 30, 130, 20));
 
         jLabel6.setFont(new java.awt.Font("Microsoft Yi Baiti", 1, 36)); // NOI18N
         jLabel6.setForeground(new java.awt.Color(255, 255, 255));
         jLabel6.setText("REQUERIMIENTOS");
-        jPanel6.add(jLabel6, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 20, -1, 30));
+        jPanel6.add(jLabel6, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 10, -1, 30));
 
         jLabel11.setBackground(new java.awt.Color(204, 204, 255));
         jLabel11.setFont(new java.awt.Font("Microsoft Yi Baiti", 1, 24)); // NOI18N
         jLabel11.setForeground(new java.awt.Color(204, 204, 204));
         jLabel11.setText("BARMAN");
-        jPanel6.add(jLabel11, new org.netbeans.lib.awtextra.AbsoluteConstraints(300, 20, -1, 40));
+        jPanel6.add(jLabel11, new org.netbeans.lib.awtextra.AbsoluteConstraints(300, 10, -1, 40));
 
         jLabel12.setBackground(new java.awt.Color(204, 204, 255));
         jLabel12.setFont(new java.awt.Font("Arial", 0, 12)); // NOI18N
         jLabel12.setForeground(new java.awt.Color(204, 204, 204));
         jLabel12.setText("Almacen");
-        jPanel6.add(jLabel12, new org.netbeans.lib.awtextra.AbsoluteConstraints(1000, 50, -1, 20));
+        jPanel6.add(jLabel12, new org.netbeans.lib.awtextra.AbsoluteConstraints(770, 30, -1, 20));
 
-        getContentPane().add(jPanel6, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 1200, 80));
+        getContentPane().add(jPanel6, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 990, 60));
 
-        btnListarPedidos.setFont(new java.awt.Font("Arial", 0, 14)); // NOI18N
+        btnListarPedidos.setFont(new java.awt.Font("Arial", 0, 12)); // NOI18N
         btnListarPedidos.setText("LISTA DE PEDIDOS");
         btnListarPedidos.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 btnListarPedidosActionPerformed(evt);
             }
         });
-        getContentPane().add(btnListarPedidos, new org.netbeans.lib.awtextra.AbsoluteConstraints(840, 680, 180, -1));
+        getContentPane().add(btnListarPedidos, new org.netbeans.lib.awtextra.AbsoluteConstraints(670, 580, 150, -1));
 
-        btnGuardar.setFont(new java.awt.Font("Arial", 0, 14)); // NOI18N
+        btnGuardar.setBackground(new java.awt.Color(204, 255, 204));
+        btnGuardar.setFont(new java.awt.Font("Arial", 0, 12)); // NOI18N
         btnGuardar.setText("REGISTRAR");
-        btnGuardar.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                btnGuardarActionPerformed(evt);
-            }
-        });
-        getContentPane().add(btnGuardar, new org.netbeans.lib.awtextra.AbsoluteConstraints(970, 560, 200, -1));
+        getContentPane().add(btnGuardar, new org.netbeans.lib.awtextra.AbsoluteConstraints(680, 510, 240, -1));
 
         tblRequerimientos = new javax.swing.JTable(){
             public boolean isCellEditable(int rowIndex,int colIndex){
                 return false;
             }
         };
+        tblRequerimientos.setFont(new java.awt.Font("Arial", 0, 10)); // NOI18N
         tblRequerimientos.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
                 {null, null, null, null},
@@ -207,28 +195,24 @@ public class VistaRequerimientoBarman extends javax.swing.JFrame {
                 "Title 1", "Title 2", "Title 3", "Title 4"
             }
         ));
+        tblRequerimientos.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                tblRequerimientosMouseClicked(evt);
+            }
+        });
         jScrollPane1.setViewportView(tblRequerimientos);
 
-        getContentPane().add(jScrollPane1, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 130, 450, 290));
-
-        jLabel3.setFont(new java.awt.Font("Microsoft Yi Baiti", 0, 18)); // NOI18N
-        jLabel3.setText("AREA SOLICITANTE");
-        getContentPane().add(jLabel3, new org.netbeans.lib.awtextra.AbsoluteConstraints(700, 520, -1, -1));
-
-        jLabel5.setFont(new java.awt.Font("Arial", 0, 14)); // NOI18N
-        jLabel5.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        jLabel5.setText("CANTIDAD");
-        getContentPane().add(jLabel5, new org.netbeans.lib.awtextra.AbsoluteConstraints(480, 130, 220, -1));
+        getContentPane().add(jScrollPane1, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 100, 380, 290));
 
         txaObservaciones.setColumns(20);
-        txaObservaciones.setFont(new java.awt.Font("Microsoft Yi Baiti", 0, 24)); // NOI18N
+        txaObservaciones.setFont(new java.awt.Font("Arial", 0, 12)); // NOI18N
         txaObservaciones.setRows(5);
         txaObservaciones.setWrapStyleWord(true);
         jScrollPane2.setViewportView(txaObservaciones);
 
-        getContentPane().add(jScrollPane2, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 470, 670, 130));
+        getContentPane().add(jScrollPane2, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 420, 560, 130));
 
-        txtProducto.setFont(new java.awt.Font("Microsoft Yi Baiti", 0, 24)); // NOI18N
+        txtProducto.setFont(new java.awt.Font("Arial", 0, 12)); // NOI18N
         txtProducto.setForeground(new java.awt.Color(0, 102, 255));
         txtProducto.setHorizontalAlignment(javax.swing.JTextField.CENTER);
         txtProducto.addKeyListener(new java.awt.event.KeyAdapter() {
@@ -236,8 +220,9 @@ public class VistaRequerimientoBarman extends javax.swing.JFrame {
                 txtProductoKeyReleased(evt);
             }
         });
-        getContentPane().add(txtProducto, new org.netbeans.lib.awtextra.AbsoluteConstraints(110, 90, 350, -1));
+        getContentPane().add(txtProducto, new org.netbeans.lib.awtextra.AbsoluteConstraints(110, 70, 280, 30));
 
+        tblAdd.setFont(new java.awt.Font("Arial", 0, 10)); // NOI18N
         tblAdd.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
                 {null, null, null, null},
@@ -251,101 +236,120 @@ public class VistaRequerimientoBarman extends javax.swing.JFrame {
         ));
         jScrollPane3.setViewportView(tblAdd);
 
-        getContentPane().add(jScrollPane3, new org.netbeans.lib.awtextra.AbsoluteConstraints(720, 130, 450, 290));
+        getContentPane().add(jScrollPane3, new org.netbeans.lib.awtextra.AbsoluteConstraints(590, 100, 380, 290));
 
-        btnAdd.setBackground(new java.awt.Color(204, 255, 204));
-        btnAdd.setFont(new java.awt.Font("Microsoft Yi Baiti", 0, 24)); // NOI18N
+        btnAdd.setBackground(new java.awt.Color(102, 102, 102));
+        btnAdd.setFont(new java.awt.Font("Arial", 0, 12)); // NOI18N
+        btnAdd.setForeground(new java.awt.Color(255, 255, 255));
         btnAdd.setText(">");
-        getContentPane().add(btnAdd, new org.netbeans.lib.awtextra.AbsoluteConstraints(480, 330, 220, 40));
+        btnAdd.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnAddActionPerformed(evt);
+            }
+        });
+        getContentPane().add(btnAdd, new org.netbeans.lib.awtextra.AbsoluteConstraints(400, 240, 170, 40));
 
         btnQuitarAdd.setBackground(new java.awt.Color(255, 153, 153));
-        btnQuitarAdd.setFont(new java.awt.Font("Microsoft Yi Baiti", 0, 24)); // NOI18N
+        btnQuitarAdd.setFont(new java.awt.Font("Arial", 0, 12)); // NOI18N
         btnQuitarAdd.setText("x");
-        getContentPane().add(btnQuitarAdd, new org.netbeans.lib.awtextra.AbsoluteConstraints(1110, 430, 60, 30));
+        getContentPane().add(btnQuitarAdd, new org.netbeans.lib.awtextra.AbsoluteConstraints(920, 395, 50, -1));
 
         jLabel7.setFont(new java.awt.Font("Microsoft Yi Baiti", 0, 18)); // NOI18N
         jLabel7.setForeground(new java.awt.Color(153, 153, 153));
         jLabel7.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        jLabel7.setText("LISTA DE PRODUCTOS A PEDIR");
-        getContentPane().add(jLabel7, new org.netbeans.lib.awtextra.AbsoluteConstraints(720, 100, 450, -1));
+        jLabel7.setText("REQUERIMIENTO");
+        getContentPane().add(jLabel7, new org.netbeans.lib.awtextra.AbsoluteConstraints(590, 70, 380, -1));
 
-        txtCantidad.setFont(new java.awt.Font("Arial", 0, 14)); // NOI18N
+        txtCantidad.setFont(new java.awt.Font("Arial", 0, 12)); // NOI18N
         txtCantidad.setForeground(new java.awt.Color(0, 102, 255));
         txtCantidad.setHorizontalAlignment(javax.swing.JTextField.CENTER);
-        getContentPane().add(txtCantidad, new org.netbeans.lib.awtextra.AbsoluteConstraints(480, 160, 220, 40));
+        getContentPane().add(txtCantidad, new org.netbeans.lib.awtextra.AbsoluteConstraints(400, 130, 170, 40));
 
-        jLabel8.setFont(new java.awt.Font("Microsoft Yi Baiti", 0, 18)); // NOI18N
+        jLabel8.setFont(new java.awt.Font("Arial", 0, 12)); // NOI18N
         jLabel8.setText("PRODUCTO");
-        getContentPane().add(jLabel8, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 90, -1, -1));
+        getContentPane().add(jLabel8, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 70, -1, 20));
 
-        jLabel9.setFont(new java.awt.Font("Arial", 0, 14)); // NOI18N
+        jLabel9.setFont(new java.awt.Font("Arial", 0, 12)); // NOI18N
         jLabel9.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         jLabel9.setText("MEDIDA");
-        getContentPane().add(jLabel9, new org.netbeans.lib.awtextra.AbsoluteConstraints(480, 230, 220, -1));
+        getContentPane().add(jLabel9, new org.netbeans.lib.awtextra.AbsoluteConstraints(400, 170, 170, -1));
 
-        cmbMedida.setFont(new java.awt.Font("Arial", 0, 14)); // NOI18N
-        getContentPane().add(cmbMedida, new org.netbeans.lib.awtextra.AbsoluteConstraints(480, 260, 220, -1));
+        cmbMedida.setFont(new java.awt.Font("Arial", 0, 12)); // NOI18N
+        getContentPane().add(cmbMedida, new org.netbeans.lib.awtextra.AbsoluteConstraints(400, 190, 170, -1));
 
-        jLabel10.setFont(new java.awt.Font("Microsoft Yi Baiti", 0, 18)); // NOI18N
+        jLabel10.setFont(new java.awt.Font("Arial", 0, 12)); // NOI18N
         jLabel10.setText("OBSERVACIONES");
-        getContentPane().add(jLabel10, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 440, -1, -1));
+        getContentPane().add(jLabel10, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 400, -1, -1));
 
-        cmbAlmacen.setFont(new java.awt.Font("Microsoft Yi Baiti", 0, 18)); // NOI18N
-        getContentPane().add(cmbAlmacen, new org.netbeans.lib.awtextra.AbsoluteConstraints(700, 560, 240, -1));
-
-        jLabel2.setFont(new java.awt.Font("Microsoft Yi Baiti", 0, 18)); // NOI18N
+        jLabel2.setFont(new java.awt.Font("Arial", 0, 12)); // NOI18N
         jLabel2.setForeground(new java.awt.Color(102, 102, 102));
         jLabel2.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
         jLabel2.setText("USUARIO");
-        getContentPane().add(jLabel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 680, 70, -1));
+        getContentPane().add(jLabel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 570, 70, -1));
 
         txtUsuario.setEditable(false);
         txtUsuario.setBackground(new java.awt.Color(255, 255, 255));
-        txtUsuario.setFont(new java.awt.Font("Microsoft Yi Baiti", 0, 18)); // NOI18N
+        txtUsuario.setFont(new java.awt.Font("Arial", 0, 12)); // NOI18N
         txtUsuario.setForeground(new java.awt.Color(102, 102, 102));
         txtUsuario.setHorizontalAlignment(javax.swing.JTextField.CENTER);
         txtUsuario.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(204, 204, 204)));
-        getContentPane().add(txtUsuario, new org.netbeans.lib.awtextra.AbsoluteConstraints(100, 680, 210, -1));
+        getContentPane().add(txtUsuario, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 587, 210, 20));
 
         txtFecha.setEditable(false);
         txtFecha.setBackground(new java.awt.Color(255, 255, 255));
-        txtFecha.setFont(new java.awt.Font("Microsoft Yi Baiti", 0, 18)); // NOI18N
+        txtFecha.setFont(new java.awt.Font("Arial", 0, 12)); // NOI18N
         txtFecha.setForeground(new java.awt.Color(102, 102, 102));
         txtFecha.setHorizontalAlignment(javax.swing.JTextField.CENTER);
         txtFecha.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(204, 204, 204)));
-        getContentPane().add(txtFecha, new org.netbeans.lib.awtextra.AbsoluteConstraints(400, 680, 210, -1));
+        getContentPane().add(txtFecha, new org.netbeans.lib.awtextra.AbsoluteConstraints(270, 587, 210, 20));
 
-        jLabel4.setFont(new java.awt.Font("Microsoft Yi Baiti", 0, 18)); // NOI18N
+        jLabel4.setFont(new java.awt.Font("Arial", 0, 12)); // NOI18N
         jLabel4.setForeground(new java.awt.Color(102, 102, 102));
         jLabel4.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
         jLabel4.setText("FECHA");
-        getContentPane().add(jLabel4, new org.netbeans.lib.awtextra.AbsoluteConstraints(320, 680, 60, -1));
-        getContentPane().add(jSeparator1, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 670, 1190, 10));
+        getContentPane().add(jLabel4, new org.netbeans.lib.awtextra.AbsoluteConstraints(250, 570, 60, -1));
+        getContentPane().add(jSeparator1, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 560, 990, 10));
 
-        btnRecetas.setFont(new java.awt.Font("Arial", 0, 14)); // NOI18N
-        btnRecetas.setText("RECETAS");
-        btnRecetas.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                btnRecetasActionPerformed(evt);
-            }
-        });
-        getContentPane().add(btnRecetas, new org.netbeans.lib.awtextra.AbsoluteConstraints(650, 680, 180, -1));
-
-        btnVolver.setFont(new java.awt.Font("Arial", 0, 14)); // NOI18N
+        btnVolver.setBackground(new java.awt.Color(255, 204, 204));
+        btnVolver.setFont(new java.awt.Font("Arial", 0, 12)); // NOI18N
         btnVolver.setText("VOLVER");
         btnVolver.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 btnVolverActionPerformed(evt);
             }
         });
-        getContentPane().add(btnVolver, new org.netbeans.lib.awtextra.AbsoluteConstraints(1030, 680, 160, -1));
+        getContentPane().add(btnVolver, new org.netbeans.lib.awtextra.AbsoluteConstraints(830, 580, 150, -1));
+
+        jLabel13.setFont(new java.awt.Font("Arial", 0, 12)); // NOI18N
+        jLabel13.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        jLabel13.setText("CANTIDAD");
+        getContentPane().add(jLabel13, new org.netbeans.lib.awtextra.AbsoluteConstraints(400, 110, 170, -1));
+
+        jPanel1.setBackground(new java.awt.Color(255, 102, 102));
+        jPanel1.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+
+        jLabel14.setFont(new java.awt.Font("Arial", 0, 10)); // NOI18N
+        jLabel14.setForeground(new java.awt.Color(255, 255, 255));
+        jLabel14.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        jLabel14.setText("INGRESAR LA SUMATORIA");
+        jPanel1.add(jLabel14, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 10, 160, -1));
+
+        jLabel15.setFont(new java.awt.Font("Arial", 0, 10)); // NOI18N
+        jLabel15.setForeground(new java.awt.Color(255, 255, 255));
+        jLabel15.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        jLabel15.setText("DE TODOS LOS");
+        jPanel1.add(jLabel15, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 30, 160, -1));
+
+        jLabel5.setFont(new java.awt.Font("Arial", 0, 10)); // NOI18N
+        jLabel5.setForeground(new java.awt.Color(255, 255, 255));
+        jLabel5.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        jLabel5.setText("REQUERIMIENTOS");
+        jPanel1.add(jLabel5, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 50, 160, -1));
+
+        getContentPane().add(jPanel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(400, 310, -1, 80));
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
-
-    private void btnGuardarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnGuardarActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_btnGuardarActionPerformed
 
     private void txtProductoKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txtProductoKeyReleased
         try {
@@ -354,12 +358,6 @@ public class VistaRequerimientoBarman extends javax.swing.JFrame {
             Logger.getLogger(RequerimientoBarmanControl.class.getName()).log(Level.SEVERE, null, ex);
         }
     }//GEN-LAST:event_txtProductoKeyReleased
-
-    private void btnRecetasActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnRecetasActionPerformed
-        Recetas r = new Recetas(txtUsuario.getText(), lblAlmacen.getText());
-        r.setVisible(true);
-        dispose();
-    }//GEN-LAST:event_btnRecetasActionPerformed
 
     private void btnListarPedidosActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnListarPedidosActionPerformed
 
@@ -371,13 +369,21 @@ public class VistaRequerimientoBarman extends javax.swing.JFrame {
 
     private void btnVolverActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnVolverActionPerformed
         try {
-            CierreBarman cb = new CierreBarman(txtUsuario.getText(), lblAlmacen.getText());
+            Menu cb = new Menu(txtUsuario.getText(), lblAlmacen.getText());
             cb.setVisible(true);
             dispose();
         } catch (Exception ex) {
             Logger.getLogger(VistaRequerimientoBarman.class.getName()).log(Level.SEVERE, null, ex);
         }
     }//GEN-LAST:event_btnVolverActionPerformed
+
+    private void btnAddActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAddActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_btnAddActionPerformed
+
+    private void tblRequerimientosMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tblRequerimientosMouseClicked
+        // TODO add your handling code here:
+    }//GEN-LAST:event_tblRequerimientosMouseClicked
 
     /**
      * @param args the command line arguments
@@ -426,27 +432,28 @@ public class VistaRequerimientoBarman extends javax.swing.JFrame {
     public javax.swing.JButton btnGuardar;
     public javax.swing.JButton btnListarPedidos;
     public javax.swing.JButton btnQuitarAdd;
-    public javax.swing.JButton btnRecetas;
     public javax.swing.JButton btnVolver;
-    public javax.swing.JComboBox<Almacen> cmbAlmacen;
     public javax.swing.JComboBox<Medida> cmbMedida;
     private javax.swing.JLabel jLabel10;
     private javax.swing.JLabel jLabel11;
     private javax.swing.JLabel jLabel12;
+    private javax.swing.JLabel jLabel13;
+    private javax.swing.JLabel jLabel14;
+    private javax.swing.JLabel jLabel15;
     private javax.swing.JLabel jLabel2;
-    private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel5;
     private javax.swing.JLabel jLabel6;
     private javax.swing.JLabel jLabel7;
     private javax.swing.JLabel jLabel8;
     private javax.swing.JLabel jLabel9;
+    private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel6;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JScrollPane jScrollPane3;
     private javax.swing.JSeparator jSeparator1;
-    private javax.swing.JLabel lblAlmacen;
+    public javax.swing.JLabel lblAlmacen;
     public javax.swing.JTable tblAdd;
     public javax.swing.JTable tblRequerimientos;
     public javax.swing.JTextArea txaObservaciones;

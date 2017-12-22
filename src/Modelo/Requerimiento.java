@@ -13,11 +13,23 @@ public class Requerimiento {
     private int idRequerimiento;
     private int idUsuario;
     private int idAlmacen;
+    private int idFlujoInventario;
     private String fecha;
     private String hora;
     private String observacion;
     private int estado;
 
+    public Requerimiento(int idRequerimiento, int idUsuario, int idAlmacen, int idFlujoInventario, String fecha, String hora, String observacion, int estado) {
+        this.idRequerimiento = idRequerimiento;
+        this.idUsuario = idUsuario;
+        this.idAlmacen = idAlmacen;
+        this.idFlujoInventario = idFlujoInventario;
+        this.fecha = fecha;
+        this.hora = hora;
+        this.observacion = observacion;
+        this.estado = estado;
+    }
+    
     public Requerimiento() {
     }
 
@@ -45,6 +57,14 @@ public class Requerimiento {
         this.idAlmacen = idAlmacen;
     }
 
+    public int getIdFlujoInventario() {
+        return idFlujoInventario;
+    }
+
+    public void setIdFlujoInventario(int idFlujoInventario) {
+        this.idFlujoInventario = idFlujoInventario;
+    }    
+    
     public String getFecha() {
         return fecha;
     }
@@ -79,7 +99,7 @@ public class Requerimiento {
 
     @Override
     public String toString() {
-        return "Requerimiento{" + "idRequerimiento=" + idRequerimiento + ", idUsuario=" + idUsuario + ", idAlmacen=" + idAlmacen + ", fecha=" + fecha + ", hora=" + hora + ", observacion=" + observacion + ", estado=" + estado + '}';
-    }
+        return "Requerimiento{" + "idRequerimiento=" + idRequerimiento + ", idUsuario=" + idUsuario + ", idAlmacen=" + idAlmacen + ", idFlujoInventario=" + idFlujoInventario + ", fecha=" + fecha + ", hora=" + hora + ", observacion=" + observacion + ", estado=" + estado + '}';
+    }   
     
 }

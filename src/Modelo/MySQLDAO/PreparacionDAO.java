@@ -155,4 +155,52 @@ public class PreparacionDAO extends Conexion implements DAO<Preparacion>{
         return li;
     }
     
+    //obtener detalles de preparacion a partir de id de productoPresentacion
+    public List<Preparacion> ListarProductosPreparar(int idprodPres) throws Exception {
+        List<Preparacion> li = new ArrayList<>();
+        Preparacion p = null;
+        try {
+            this.conectar();
+            PreparedStatement pst = this.conexion.prepareStatement("SELECT * FROM preparacion where idproductopresentacion = ?");
+            pst.setInt(1, idprodPres);
+            ResultSet res = pst.executeQuery();
+            while (res.next()) {
+                p = new Preparacion();
+                p.setIdPreparacion(res.getInt(1));
+                p.setIdProducto(res.getInt(2));
+                p.setIdProductoPresentacion(res.getInt(3));
+                p.setCantidad(res.getDouble(4));
+                p.setDetalles(res.getString(5));
+                li.add(p);
+            }
+            pst.close();
+            res.close();
+        } catch (Exception error) {
+            System.out.println(error.getMessage());
+        } finally {
+            this.cerrar();
+        }
+        return li;
+    }
+    
+    //obtener detalles de preparacion a partir de id de productoPresentacion
+    public List<String> ListaProductosHijos() throws Exception {
+        List<String> li = new ArrayList<>();
+        try {
+            this.conectar();
+            PreparedStatement pst = this.conexion.prepareStatement("SELECT DISTINCT idproducto FROM preparacion");
+            ResultSet res = pst.executeQuery();
+            while (res.next()) {
+                li.add(res.getString(1));
+            }
+            pst.close();
+            res.close();
+        } catch (Exception error) {
+            System.out.println(error.getMessage());
+        } finally {
+            this.cerrar();
+        }
+        return li;
+    }
+    
 }

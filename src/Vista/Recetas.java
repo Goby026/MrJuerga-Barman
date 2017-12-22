@@ -344,6 +344,7 @@ public class Recetas extends javax.swing.JFrame {
         txtHora.setBackground(new java.awt.Color(102, 102, 102));
         txtHora.setFont(new java.awt.Font("Arial", 0, 12)); // NOI18N
         txtHora.setForeground(new java.awt.Color(255, 255, 255));
+        txtHora.setText("...");
         txtHora.setBorder(null);
         jPanel1.add(txtHora, new org.netbeans.lib.awtextra.AbsoluteConstraints(280, 80, 170, -1));
 
@@ -552,7 +553,7 @@ public class Recetas extends javax.swing.JFrame {
 
     private void btnVolverActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnVolverActionPerformed
         try {
-            VistaRequerimientoBarman vrb = new VistaRequerimientoBarman(usuario, lblAlmacen.getText());
+            Menu vrb = new Menu(usuario, lblAlmacen.getText());
             vrb.setVisible(true);            
             dispose();
         } catch (Exception ex) {

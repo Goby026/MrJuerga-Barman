@@ -8,6 +8,7 @@ import Modelo.Almacen;
 import Modelo.MySQLDAO.Conexion;
 import Modelo.ProductoPresentacion;
 import Modelo.MySQLDAO.AlmacenDAO;
+import Modelo.MySQLDAO.FlujoInventarioDAO;
 import Modelo.MySQLDAO.PreparacionDAO;
 import Modelo.MySQLDAO.ProductoPresentacionDAO;
 import Modelo.MySQLDAO.TrasladoDAO;
@@ -16,6 +17,7 @@ import Modelo.MySQLDAO.UsuarioDAO;
 import Modelo.Preparacion;
 import Modelo.Traslado;
 import Modelo.TrasladoProdPres;
+import Modelo.Usuario;
 import java.awt.Color;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -30,19 +32,21 @@ import javax.swing.table.DefaultTableModel;
  *
  * @author Grover
  */
-public class MovimientosBarras extends javax.swing.JInternalFrame {
+public class MovimientosBarras extends javax.swing.JFrame {
 
     DefaultTableModel modeloBuscarProductos;
     DefaultTableModel modeloMovimientos;
 
-    public MovimientosBarras(String usuario) throws Exception {
+    public MovimientosBarras(String usuario, String storage) throws Exception {
         initComponents();
+        setLocationRelativeTo(null);
         this.getContentPane().setBackground(Color.WHITE);
 //        new LlenarTablaProductos(tblProductos, 50, 100, 200);
 //        new cargarComboAlmacenes(cmbAlmacenes);
         new Cronometro().iniciarCronometro(txtHora);
         txtFecha.setText(new ManejadorFechas().getFechaActual());
         txtUsuario.setText(usuario);
+        lblAlmacen.setText(storage);
 
         titulosBuscarProductos();
         titulosMovimientos();
@@ -74,7 +78,6 @@ public class MovimientosBarras extends javax.swing.JInternalFrame {
         cmbOrigen = new javax.swing.JComboBox<>();
         jPanel8 = new javax.swing.JPanel();
         jLabel21 = new javax.swing.JLabel();
-        jLabel23 = new javax.swing.JLabel();
         txtFecha = new javax.swing.JTextField();
         txtHora = new javax.swing.JTextField();
         txtUsuario = new javax.swing.JTextField();
@@ -84,13 +87,12 @@ public class MovimientosBarras extends javax.swing.JInternalFrame {
         jLabel13 = new javax.swing.JLabel();
         jLabel27 = new javax.swing.JLabel();
         jLabel28 = new javax.swing.JLabel();
+        lblAlmacen = new javax.swing.JLabel();
         jScrollPane2 = new javax.swing.JScrollPane();
         tblMovimientos = new javax.swing.JTable();
         jButton1 = new javax.swing.JButton();
+        btnVolver = new javax.swing.JButton();
 
-        setClosable(true);
-        setIconifiable(true);
-        setMaximizable(true);
         setTitle("MOVIMIENTOS DE PRODUCTOS CON FACTURA");
         getContentPane().setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
@@ -193,9 +195,6 @@ public class MovimientosBarras extends javax.swing.JInternalFrame {
         jLabel21.setText("MOVIMIENTOS");
         jPanel8.add(jLabel21, new org.netbeans.lib.awtextra.AbsoluteConstraints(90, 20, -1, 30));
 
-        jLabel23.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/movimientosalmacen.png"))); // NOI18N
-        jPanel8.add(jLabel23, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 0, -1, 70));
-
         txtFecha.setEditable(false);
         txtFecha.setBackground(new java.awt.Color(0, 102, 255));
         txtFecha.setForeground(new java.awt.Color(255, 255, 255));
@@ -246,6 +245,11 @@ public class MovimientosBarras extends javax.swing.JInternalFrame {
         jLabel28.setText("MISTER JUERGA");
         jPanel6.add(jLabel28, new org.netbeans.lib.awtextra.AbsoluteConstraints(482, 0, -1, -1));
 
+        lblAlmacen.setFont(new java.awt.Font("Arial", 0, 12)); // NOI18N
+        lblAlmacen.setForeground(new java.awt.Color(255, 255, 255));
+        lblAlmacen.setText("____");
+        jPanel6.add(lblAlmacen, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 10, 180, -1));
+
         getContentPane().add(jPanel6, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 670, 830, 40));
 
         tblMovimientos.setModel(new javax.swing.table.DefaultTableModel(
@@ -266,6 +270,14 @@ public class MovimientosBarras extends javax.swing.JInternalFrame {
         jButton1.setText("LISTA DE TRASLADOS");
         getContentPane().add(jButton1, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 630, 200, -1));
 
+        btnVolver.setText("VOLVER");
+        btnVolver.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnVolverActionPerformed(evt);
+            }
+        });
+        getContentPane().add(btnVolver, new org.netbeans.lib.awtextra.AbsoluteConstraints(750, 630, -1, -1));
+
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
@@ -276,11 +288,15 @@ public class MovimientosBarras extends javax.swing.JInternalFrame {
 
     private void btnTrasladarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnTrasladarActionPerformed
         try {
+            Usuario u = new UsuarioDAO().Obtener(txtUsuario.getText());
+            Almacen a = new AlmacenDAO().Obtener(lblAlmacen.getText());
             Traslado t = new Traslado();
             t.setFecha(new ManejadorFechas().getFechaActualMySQL());
             t.setHora(new ManejadorFechas().getHoraActual());
             t.setIdUsuario(new UsuarioDAO().getIdUsuario(txtUsuario.getText()));
             t.setIdTipoTraslado(1);//1= traslado de productos con factura, 2= traslado de productos sin factura
+            int idFlujoInventario = new FlujoInventarioDAO().getIdFlujo(u.getId(), a.getId());
+            t.setIdFlujoInventario(idFlujoInventario);
             TrasladoDAO tdao = new TrasladoDAO();
 
             int c = 0;
@@ -392,10 +408,25 @@ public class MovimientosBarras extends javax.swing.JInternalFrame {
         }
     }//GEN-LAST:event_tblBuscarProductosMouseClicked
 
+    private void btnVolverActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnVolverActionPerformed
+        try {
+            Menu m = new Menu(txtUsuario.getText(), lblAlmacen.getText());
+            m.setVisible(true);
+            dispose();
+        } catch (Exception e) {
+            System.out.println("Error: "+e.getMessage());
+        }
+    }//GEN-LAST:event_btnVolverActionPerformed
+
+    public static void main(String[] args) {
+        
+    }
+    
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnAgregar;
     private javax.swing.JButton btnTrasladar;
+    private javax.swing.JButton btnVolver;
     private javax.swing.JComboBox<Almacen> cmbDestino;
     private javax.swing.JComboBox<Almacen> cmbOrigen;
     private javax.swing.JButton jButton1;
@@ -403,7 +434,6 @@ public class MovimientosBarras extends javax.swing.JInternalFrame {
     private javax.swing.JLabel jLabel13;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel21;
-    private javax.swing.JLabel jLabel23;
     private javax.swing.JLabel jLabel24;
     private javax.swing.JLabel jLabel26;
     private javax.swing.JLabel jLabel27;
@@ -416,6 +446,7 @@ public class MovimientosBarras extends javax.swing.JInternalFrame {
     private javax.swing.JPanel jPanel8;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
+    public javax.swing.JLabel lblAlmacen;
     private javax.swing.JTable tblBuscarProductos;
     private javax.swing.JTable tblMovimientos;
     private javax.swing.JTextField txtBuscarProducto;

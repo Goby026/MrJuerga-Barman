@@ -2,14 +2,14 @@ package Controlador;
 
 import Modelo.Almacen;
 import Modelo.Medida;
+import Modelo.MySQLDAO.AlmacenDAO;
+import Modelo.MySQLDAO.FlujoInventarioDAO;
 import Modelo.MySQLDAO.MedidaDAO;
-import Modelo.MySQLDAO.ProductoPresentacionDAO;
 import Modelo.MySQLDAO.ProductoRequerimientoDAO;
 import Modelo.MySQLDAO.RequerimientoDAO;
 import Modelo.MySQLDAO.UsuarioDAO;
 import Modelo.ProductoRequerimiento;
 import Modelo.Requerimiento;
-import Vista.BuscarRequerimientos;
 import Vista.VistaRequerimientoBarman;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -142,7 +142,11 @@ public class RequerimientoBarmanControl implements KeyListener, MouseListener, W
     /* EVENTOS DE MOUSE */
     @Override
     public void mouseClicked(MouseEvent e) {
-        
+        if (e.getSource() == vrb.tblAdd) {
+            if (e.getClickCount() == 2) {
+                vrb.btnAdd.doClick();
+            }
+        }
     }
 
     @Override
@@ -209,23 +213,26 @@ public class RequerimientoBarmanControl implements KeyListener, MouseListener, W
             }
         }
 
-        /* BOTON REGISTRAR PEDIDO */
+        /* BOTON REGISTRAR REQUERIMIENTO */
         if (e.getSource() == vrb.btnGuardar) {
-            try {
+            try {                
                 int idReq = 0;
                 int contador = 0;
                 UsuarioDAO udao = new UsuarioDAO();
                 int idUsuario = udao.getIdUsuario(vrb.txtUsuario.getText());
+                Almacen almacen = new AlmacenDAO().Obtener(vrb.lblAlmacen.getText());
+                int idFlujoInventario = new FlujoInventarioDAO().getIdFlujo(idUsuario, almacen.getId());
 
                 //registrar el requermiento
                 Requerimiento r = new Requerimiento();
                 r.setIdUsuario(idUsuario);
-                Almacen almacen = (Almacen) vrb.cmbAlmacen.getSelectedItem();
+                
                 r.setIdAlmacen(almacen.getId());
+                r.setIdFlujoInventario(idFlujoInventario);
                 r.setFecha(new ManejadorFechas().getFechaActualMySQL());
                 r.setHora(new ManejadorFechas().getHoraActual());
                 r.setObservacion(vrb.txaObservaciones.getText());
-                r.setEstado(0);//pendiente
+                r.setEstado(1);//pendiente
 
                 RequerimientoDAO rdao = new RequerimientoDAO();
                 if (rdao.Registrar(r)) {
@@ -248,7 +255,7 @@ public class RequerimientoBarmanControl implements KeyListener, MouseListener, W
                 }
 
                 if (contador > 0) {
-                    JOptionPane.showMessageDialog(null, "SE REGISTRÓ EL PEDIDO CORRECTAMENTE");
+                    JOptionPane.showMessageDialog(null, "SE REGISTRÓ EL REQUERIMIENTO CORRECTAMENTE");
                     limpiarCampos();
                     LimpiarTabla(vrb.tblAdd, modeloAdd);
                     

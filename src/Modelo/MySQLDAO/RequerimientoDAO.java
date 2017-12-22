@@ -17,13 +17,14 @@ public class RequerimientoDAO extends Conexion implements DAO<Requerimiento> {
     public boolean Registrar(Requerimiento m) throws Exception {
         try {
             this.conectar();
-            PreparedStatement pst = this.conexion.prepareStatement("INSERT INTO requerimiento(idusuario,idalmacen ,fecha, hora, observacion,estado) VALUES (?,?,?,?,?,?)");
+            PreparedStatement pst = this.conexion.prepareStatement("INSERT INTO requerimiento(idusuario, idalmacen, idflujoinventario,fecha, hora, observacion,estado) VALUES (?,?,?,?,?,?,?)");
             pst.setInt(1, m.getIdUsuario());
             pst.setInt(2, m.getIdAlmacen());
-            pst.setString(3, m.getFecha());
-            pst.setString(4, m.getHora());
-            pst.setString(5, m.getObservacion());
-            pst.setInt(6, m.getEstado());
+            pst.setInt(3, m.getIdFlujoInventario());
+            pst.setString(4, m.getFecha());
+            pst.setString(5, m.getHora());
+            pst.setString(6, m.getObservacion());
+            pst.setInt(7, m.getEstado());
             int res = pst.executeUpdate();
             if (res > 0) {
                 return true;
@@ -41,14 +42,15 @@ public class RequerimientoDAO extends Conexion implements DAO<Requerimiento> {
     public boolean Modificar(Requerimiento m) throws Exception {
         try {
             this.conectar();
-            PreparedStatement pst = this.conexion.prepareStatement("UPDATE `requerimiento` SET `idusuario` = ?, `fecha` = ?, `hora` = ?, `observacion` = ?,`estado` = ? WHERE `idrequerimiento` = ?");
+            PreparedStatement pst = this.conexion.prepareStatement("UPDATE `requerimiento` SET `idusuario` = ?, idalmacen = ?, idflujoinventario = ?,`fecha` = ?, `hora` = ?, `observacion` = ?,`estado` = ? WHERE `idrequerimiento` = ?");
             pst.setInt(1, m.getIdUsuario());
             pst.setInt(2, m.getIdAlmacen());
-            pst.setString(3, m.getFecha());
-            pst.setString(4, m.getHora());
-            pst.setString(5, m.getObservacion());
-            pst.setInt(6, m.getEstado());
-            pst.setInt(7, m.getIdRequerimiento());
+            pst.setInt(3, m.getIdFlujoInventario());
+            pst.setString(4, m.getFecha());
+            pst.setString(5, m.getHora());
+            pst.setString(6, m.getObservacion());
+            pst.setInt(7, m.getEstado());
+            pst.setInt(8, m.getIdRequerimiento());
             int res = pst.executeUpdate();
             if (res > 0) {
                 return true;
@@ -93,10 +95,11 @@ public class RequerimientoDAO extends Conexion implements DAO<Requerimiento> {
                 m.setIdRequerimiento(res.getInt(1));
                 m.setIdUsuario(res.getInt(2));
                 m.setIdAlmacen(res.getInt(3));
-                m.setFecha(res.getString(4));
-                m.setHora(res.getString(5));
-                m.setObservacion(res.getString(6));
-                m.setEstado(res.getInt(7));
+                m.setIdFlujoInventario(res.getInt(4));
+                m.setFecha(res.getString(5));
+                m.setHora(res.getString(6));
+                m.setObservacion(res.getString(7));
+                m.setEstado(res.getInt(8));
                 lista.add(m);
             }
             pst.close();
@@ -121,12 +124,44 @@ public class RequerimientoDAO extends Conexion implements DAO<Requerimiento> {
 
             if (res.next()) {
                 m = new Requerimiento();
-                m.setIdRequerimiento(res.getInt("idrequerimiento"));
-                m.setIdUsuario(res.getInt("idusuario"));
-                m.setFecha(res.getString("fecha"));
-                m.setHora(res.getString("hora"));
-                m.setObservacion(res.getString("observacion"));
-                m.setEstado(res.getInt("estado"));
+                m.setIdRequerimiento(res.getInt(1));
+                m.setIdUsuario(res.getInt(2));
+                m.setIdAlmacen(res.getInt(3));
+                m.setIdFlujoInventario(res.getInt(4));
+                m.setFecha(res.getString(5));
+                m.setHora(res.getString(6));
+                m.setObservacion(res.getString(7));
+                m.setEstado(res.getInt(8));
+            }
+            pst.close();
+            res.close();
+        } catch (Exception e) {
+            throw e;
+        } finally {
+            this.cerrar();
+        }
+        return m;
+    }
+    
+    public Requerimiento ObtenerPorFlujoInventario(int idFlujoInventario) throws Exception {
+        Requerimiento m = null;
+        try {
+
+            this.conectar();
+            PreparedStatement pst = this.conexion.prepareStatement("SELECT * FROM requerimiento WHERE idflujoinventario = ?");
+            pst.setInt(1, idFlujoInventario);
+            ResultSet res = pst.executeQuery();
+
+            if (res.next()) {
+                m = new Requerimiento();
+                m.setIdRequerimiento(res.getInt(1));
+                m.setIdUsuario(res.getInt(2));
+                m.setIdAlmacen(res.getInt(3));
+                m.setIdFlujoInventario(res.getInt(4));
+                m.setFecha(res.getString(5));
+                m.setHora(res.getString(6));
+                m.setObservacion(res.getString(7));
+                m.setEstado(res.getInt(8));
             }
             pst.close();
             res.close();

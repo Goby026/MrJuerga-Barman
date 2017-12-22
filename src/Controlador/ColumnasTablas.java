@@ -7,7 +7,7 @@ public class ColumnasTablas {
     
     public void dosColumnas(JTable tabla, int col1, int col2){
         tabla.getColumnModel().getColumn(0).setPreferredWidth(col1);
-        tabla.getColumnModel().getColumn(1).setPreferredWidth(col2);        
+        tabla.getColumnModel().getColumn(1).setPreferredWidth(col2);
     }
     
     public void tresColumnas(JTable tabla, int col1, int col2, int col3){
@@ -62,6 +62,7 @@ public class ColumnasTablas {
     }
     
     public void nueveColumnas(JTable tabla, int col1, int col2, int col3, int col4, int col5, int col6, int col7, int col8, int col9){
+
         tabla.getColumnModel().getColumn(0).setPreferredWidth(col1);
         tabla.getColumnModel().getColumn(1).setPreferredWidth(col2);        
         tabla.getColumnModel().getColumn(2).setPreferredWidth(col3);        
@@ -71,6 +72,12 @@ public class ColumnasTablas {
         tabla.getColumnModel().getColumn(6).setPreferredWidth(col7);        
         tabla.getColumnModel().getColumn(7).setPreferredWidth(col8);        
         tabla.getColumnModel().getColumn(8).setPreferredWidth(col9);        
+    }
+    
+    public void sizeColumns(JTable tabla,int nroColumnas, int columnas[]){        
+        for (int i = 0; i < nroColumnas; i++) {
+            tabla.getColumnModel().getColumn(i).setPreferredWidth(columnas[i]);
+        }
     }
     
     public void diezColumnas(JTable tabla, int col1, int col2, int col3, int col4, int col5, int col6, int col7, int col8, int col9, int col10){

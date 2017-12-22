@@ -131,6 +131,38 @@ public class ProductoPresentacionDAO extends Conexion implements DAO<ProductoPre
         }
         return lista;
     }
+    
+    public List<ProductoPresentacion> ListarPorCategoria(int idCategoria) throws Exception {
+        List<ProductoPresentacion> lista = null;
+        try {
+            this.conectar();
+            PreparedStatement pst = this.conexion.prepareStatement("select * from productopresentacion where idcategoria = ?");
+            pst.setInt(1, idCategoria);
+            lista = new ArrayList();
+            ResultSet rs = pst.executeQuery();
+            while (rs.next()) {
+                ProductoPresentacion pp = new ProductoPresentacion();
+                pp.setIdProductoPresentacion(rs.getInt(1));
+                pp.setIdProducto(rs.getInt(2));
+                pp.setIdPresentacion(rs.getInt(3));
+                pp.setIdalmacen(rs.getInt(4));
+                pp.setStock(rs.getDouble(5));
+                pp.setStock2(rs.getDouble(6));
+                pp.setStock3(rs.getDouble(7));
+                pp.setPrecio(rs.getDouble(8));
+                pp.setPrecio2(rs.getDouble(9));
+                pp.setIdcategoria(rs.getInt(10));
+                lista.add(pp);
+            }
+            rs.close();
+            pst.close();
+        } catch (Exception e) {
+            throw e;
+        } finally {
+            this.cerrar();
+        }
+        return lista;
+    }
 
     //Metodo para obteber un elemento a partir de su id y el almacen
     public ProductoPresentacion Obtener(int idProducto, int idAlmacen) throws Exception {
