@@ -395,6 +395,11 @@ public class CierreBarman extends javax.swing.JFrame {
 
         btnBuscarProductoSinRecoger.setFont(new java.awt.Font("Arial", 0, 12)); // NOI18N
         btnBuscarProductoSinRecoger.setText("Buscar");
+        btnBuscarProductoSinRecoger.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnBuscarProductoSinRecogerActionPerformed(evt);
+            }
+        });
         formProductosSinRecogerRotos.getContentPane().add(btnBuscarProductoSinRecoger, new org.netbeans.lib.awtextra.AbsoluteConstraints(390, 10, -1, 30));
 
         txtBuscarProducto.setFont(new java.awt.Font("Arial", 0, 12)); // NOI18N
@@ -762,20 +767,20 @@ public class CierreBarman extends javax.swing.JFrame {
             try {
                 int c = 0;
                 int y = 0;
-                int idFlujoInventario = new FlujoInventarioDAO().getIdFlujo(idUsuario, almacen.getId());                
+                int idFlujoInventario = new FlujoInventarioDAO().getIdFlujo(idUsuario, almacen.getId());
                 //registra productos rotos
                 for (int i = 0; i < tblProductoRotos.getRowCount(); i++) {
                     int idProducto = Integer.parseInt(tblProductoRotos.getValueAt(i, 0).toString());
                     ProductoPresentacion pp = new ProductoPresentacionDAO().Obtener(idProducto);
                     ProductoRoto pr = new ProductoRoto();
-                    
+
                     pr.setIdproductopresentacion(pp.getIdProductoPresentacion());
                     pr.setIdflujoinventario(idFlujoInventario);
                     pr.setCantidad(Double.parseDouble(tblProductoRotos.getValueAt(i, 3).toString()));
                     pr.setPrecio(pp.getPrecio());
-                    
+
                     ProductoRotoDAO prdao = new ProductoRotoDAO();
-                    
+
                     if (prdao.Registrar(pr)) {
                         y++;
                     }
@@ -801,11 +806,8 @@ public class CierreBarman extends javax.swing.JFrame {
                 if (c > 0 && y > 0) {
                     System.out.println("SE REGISTRARON LOS PRODUCTOS ROTOS y SIN RECOGER");
                 }
-                
+
                 //REGISTRAR INVENTARIO FINAL
-                
-                
-                
             } catch (Exception e) {
                 System.out.println("Error: " + e.getMessage());
             }
@@ -900,6 +902,7 @@ public class CierreBarman extends javax.swing.JFrame {
                 LlenarTablaEntradaGeneral(idflujocajaJaime);
 
                 int idflujocajaCaja01 = new FlujoInventarioDAO().getIdFlujoCaja(fecha, 3);//3= idcaja caja general
+                System.out.println("El idFlujoCaja01 es :" + idflujocajaCaja01);
                 LlenarTablaCajaGeneral(idflujocajaCaja01);
 
                 int idflujocajaCaja02 = new FlujoInventarioDAO().getIdFlujoCaja(fecha, 4);//4= idcaja caja general2
@@ -1066,13 +1069,13 @@ public class CierreBarman extends javax.swing.JFrame {
                         cantidad += Double.parseDouble(tblStockFinal.getValueAt(j, 3).toString());
                     }
                 }
-                
+
                 for (int j = 0; j < filasVentasTotales; j++) {//recorre la tabla ventas totales
                     if (tblTotalIngresos.getValueAt(i, 1).toString().equals(tblVentas.getValueAt(j, 1).toString())) {//si es el mismo producto
                         cantidad -= Double.parseDouble(tblVentas.getValueAt(j, 3).toString());
                     }
                 }
-                
+
                 for (int j = 0; j < filasProdRotos; j++) {//recorre la tabla productos rotos
                     if (tblTotalIngresos.getValueAt(i, 1).toString().equals(tblProductoRotos.getValueAt(j, 1).toString())) {//si es el mismo producto
                         cantidad -= Double.parseDouble(tblProductoRotos.getValueAt(j, 3).toString());
@@ -1227,6 +1230,10 @@ public class CierreBarman extends javax.swing.JFrame {
 //
 //        }
     }//GEN-LAST:event_btnConfirmarTotalBarraActionPerformed
+
+    private void btnBuscarProductoSinRecogerActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnBuscarProductoSinRecogerActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_btnBuscarProductoSinRecogerActionPerformed
 
     /**
      * @param args the command line arguments
@@ -1424,6 +1431,7 @@ public class CierreBarman extends javax.swing.JFrame {
             c.conectar();
             jcCajaGeneral.LimpiarTabla();
             String datos[] = new String[4];
+            //ventas reales
             String sql = "select pp.idproductopresentacion, p.nombre, pre.descripcion, sum(vp.cantidad)\n"
                     + "    from venta v\n"
                     + "    inner join ventaproducto vp on v.idventa = vp.idventa    \n"
@@ -1433,15 +1441,32 @@ public class CierreBarman extends javax.swing.JFrame {
                     + "    where v.idflujocaja = " + idFlujoCaja + " \n"
                     + "    group by pp.idproductopresentacion\n"
                     + "    order by sum(vp.cantidad) desc";
-
+            //ventas con nota de pedido
+            String sqlNP = "select pp.idproductopresentacion, p.nombre, pre.descripcion, sum(np.cantidad)\n"
+                    + "	from npbarra n\n"
+                    + "	inner join npbarra_prod np on n.idnpbarra = np.idnpbarra\n"
+                    + "	inner join productopresentacion pp on np.idproductopresentacion = pp.idproductopresentacion\n"
+                    + "	inner join producto p on pp.idproducto = p.idproducto\n"
+                    + "	inner join presentacion pre on pp.idpresentacion = pre.idpresentacion\n"
+                    + "	where idflujocaja = " + idFlujoCaja + " \n"
+                    + "    group by pp.idproductopresentacion";
             Statement st = c.getConexion().createStatement();
+            Statement stNP = c.getConexion().createStatement();
             ResultSet rs = st.executeQuery(sql);
+            ResultSet rsNP = stNP.executeQuery(sqlNP);            
             while (rs.next()) {
+                Double cantidad = 0.0;
                 datos[0] = String.valueOf(rs.getInt(1));
                 datos[1] = rs.getString(2);
                 datos[2] = rs.getString(3);
-                datos[3] = rs.getString(4);
-
+                cantidad = Double.parseDouble(rs.getString(4));
+                while (rsNP.next()) {
+                    if (rs.getString(2).equals(rsNP.getString(2))) {
+                        cantidad = Double.parseDouble(rs.getString(4)) + Double.parseDouble(rsNP.getString(4));
+                        System.out.println("CAntidad: "+cantidad);
+                    }
+                }
+                datos[3] = String.valueOf(cantidad);
                 jcCajaGeneral.getModelo().addRow(datos);
             }
             tblCajaGeneral.setModel(jcCajaGeneral.getModelo());
