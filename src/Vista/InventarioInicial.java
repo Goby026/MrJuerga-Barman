@@ -238,6 +238,7 @@ public class InventarioInicial extends javax.swing.JFrame {
 
         try {
             int idFlujoInventario = new FlujoInventarioDAO().getIdFlujo(idAlmacen);
+            System.out.println("IdFlujo inventario: "+idFlujoInventario);
             con.conectar();
             String sql = "";
             switch (idAlmacen) {

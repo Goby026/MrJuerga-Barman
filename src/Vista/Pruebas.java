@@ -5,9 +5,11 @@
  */
 package Vista;
 
-import Modelo.MySQLDAO.RequerimientoDAO;
-import Modelo.Requerimiento;
-import Modelo.tablaBuscarProducto;
+import Modelo.MySQLDAO.NotaPedidoDAO;
+import Modelo.NotaPedido;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 
 /**
  *
@@ -19,11 +21,8 @@ public class Pruebas {
      * @param args the command line arguments
      */
     public static void main(String[] args) throws Exception {
-        RequerimientoDAO rdao = new RequerimientoDAO();
         
-        for (RequerimientoDAO.tablaBuscar tb : rdao.buscarRequerimientoPorFechas("2017-07-30", "2017-07-31")) {
-            System.out.println(tb.getIdRequermiento()+" "+ tb.getFecha() +" "+ tb.getUsuario()  );
-        }
+
     }
-    
+
 }

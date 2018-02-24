@@ -178,12 +178,14 @@ public class FlujoInventarioDAO extends Conexion implements DAO<FlujoInventario>
     }
 
     /*obtener el max idflujoinventario de las cajas activas*/
-    public int getIdFlujoCaja(String fecha, int idCaja) throws Exception {
+    public int getIdFlujoCaja(int idCaja, String fecha) throws Exception {
         try {
             this.conectar();
             //String sql = "select max(idflujocaja) from flujocaja where estado = 1 and idcaja = "+idCaja;
-            String sql = "select max(idflujocaja) from flujocaja where fecha_inicio= '" + fecha + "' and idcaja = " + idCaja;
+            String sql = "select max(idflujocaja) from flujocaja where idcaja = ? AND fecha_inicio = ?";
             PreparedStatement pst = this.conexion.prepareStatement(sql);
+            pst.setInt(1, idCaja);
+            pst.setString(2, fecha);
             ResultSet res = pst.executeQuery();
             while (res.next()) {
                 return res.getInt(1);
